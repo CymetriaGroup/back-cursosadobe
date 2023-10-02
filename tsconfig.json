@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "ES2021",
     "module": "commonjs",
     "outDir": "./dist",
     "rootDir": "./src",
@@ -9,7 +9,7 @@
     "sourceMap": false,
     "declaration": false,
     "strict": true,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true

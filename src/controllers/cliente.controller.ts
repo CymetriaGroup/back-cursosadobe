@@ -103,11 +103,11 @@ export const readClienteById = async (req: Request, res: Response) => {
 				[id],
 			);
 			const [cursoCliente]: any = await db.query(
-				"SELECT * FROM cursoCliente WHERE id_cliente = ?",
+				"SELECT * FROM cursocliente WHERE id_cliente = ?",
 				[id],
 			);
 
-			const cursos = [];
+			const cursos: any[] = [];
 
 			for (const curso of cursoCliente) {
 				const [cursoDB]: any = await db.query(
@@ -141,11 +141,11 @@ export const readClienteByPath = async (req: Request, res: Response) => {
 				[cliente[0].id],
 			);
 			const [cursoCliente]: any = await db.query(
-				"SELECT * FROM cursoCliente WHERE id_cliente = ?",
+				"SELECT * FROM cursocliente WHERE id_cliente = ?",
 				[cliente[0].id],
 			);
 
-			const cursos = [];
+			const cursos: any[] = [];
 
 			for (const curso of cursoCliente) {
 				const [cursoDB]: any = await db.query(

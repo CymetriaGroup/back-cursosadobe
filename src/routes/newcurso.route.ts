@@ -12,4 +12,5 @@ router.delete("/curso/:id", cursoCtrl.deleteCurso);
 router.post("/curso-cliente", cursoCtrl.createCursoCliente);
 router.delete("/curso-cliente", cursoCtrl.deleteCursoCliente);
 
+router.post("/certificado", cursoCtrl.createCertificado);
 export default router;
