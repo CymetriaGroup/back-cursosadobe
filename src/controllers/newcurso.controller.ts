@@ -19,7 +19,6 @@ export const createCurso = async (req: Request, res: Response) => {
 	if (
 		!nombre ||
 		!descripcion ||
-		!precio ||
 		!nombre_docente ||
 		!nombre_certificado ||
 		!contenido ||
@@ -97,6 +96,54 @@ export const readCursoById = async (req: Request, res: Response) => {
 	}
 };
 
+export const readCursoClienteById = async (req: Request, res: Response) => {
+	const { codigo, id } = req.params;
+
+	if (!codigo || !id) {
+		return res.status(400).json({ message: "Faltan datos" });
+	}
+
+	try {
+		const [cliente]: any = await db.query(
+			"SELECT * FROM cliente WHERE codigo = ?",
+			[codigo],
+		);
+		if (cliente.length > 0) {
+			const [cursoCliente]: any = await db.query(
+				"SELECT * FROM cursocliente WHERE id_curso = ? AND id_cliente = ?",
+				[id, cliente[0].id],
+			);
+			if (cursoCliente.length > 0) {
+				const [curso]: any = await db.query(
+					"SELECT * FROM curso WHERE id = ?",
+					[id],
+				);
+				if (curso.length > 0) {
+					const [contenidocurso]: any = await db.query(
+						"SELECT * FROM contenidocurso WHERE curso_id = ?",
+						[id],
+					);
+					const contenido = contenidocurso[0].contenido;
+
+					curso[0].contenido = contenido;
+					res.json({ curso: curso[0], cliente: cliente[0] });
+				} else {
+					return res.status(400).json({ message: "El curso no existe" });
+				}
+			} else {
+				return res
+					.status(400)
+					.json({ message: "El cliente no tiene el curso" });
+			}
+		} else {
+			return res.status(400).json({ message: "El cliente no existe" });
+		}
+	} catch (error: any) {
+		logger(error);
+		return res.status(500).json({ message: error.message });
+	}
+};
+
 export const readCursos = async (req: Request, res: Response) => {
 	try {
 		const [cursos]: any = await db.query("SELECT * FROM curso");
@@ -132,7 +179,6 @@ export const updateCurso = async (req: Request, res: Response) => {
 		!id ||
 		!nombre ||
 		!descripcion ||
-		!precio ||
 		!nombre_docente ||
 		!nombre_certificado ||
 		!contenido ||

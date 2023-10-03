@@ -10,6 +10,7 @@ router.put("/curso/:id", cursoCtrl.updateCurso);
 router.delete("/curso/:id", cursoCtrl.deleteCurso);
 
 router.post("/curso-cliente", cursoCtrl.createCursoCliente);
+router.get("/curso-cliente/:codigo/:id", cursoCtrl.readCursoClienteById);
 router.delete("/curso-cliente", cursoCtrl.deleteCursoCliente);
 
 router.post("/certificado", cursoCtrl.createCertificado);
