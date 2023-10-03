@@ -2,62 +2,6 @@ import db from "../database";
 import { generateRandomCode, logger } from "../tools";
 import { Request, Response } from "express";
 
-`-- Crear la tabla Cliente
-CREATE TABLE Cliente (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(255) NOT NULL,
-    nit VARCHAR(255) NOT NULL,
-    codigo VARCHAR(255),
-    nombre_path VARCHAR(255) NOT NULL,
-    url_imagen VARCHAR(255),
-    max_usuarios INT NOT NULL,
-    -- Definir relación con Usuario
-    FOREIGN KEY (id) REFERENCES Usuario (id_cliente)
-);
-
--- Crear la tabla Usuario
-CREATE TABLE Usuario (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    id_cliente INT NOT NULL,
-    nombre VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
-    empresa VARCHAR(255) NOT NULL,
-    ip VARCHAR(255),
-    -- Definir relación con Cliente
-    FOREIGN KEY (id_cliente) REFERENCES Cliente (id)
-);
-
--- Crear la tabla Curso
-CREATE TABLE Curso (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(255) NOT NULL,
-    descripcion TEXT NOT NULL,
-    url_imagen VARCHAR(255),
-    nombre_docente VARCHAR(255) NOT NULL,
-    precio DECIMAL(10, 2) NOT NULL,
-    nombre_certificado VARCHAR(255) NOT NULL
-);
-
--- Crear la tabla para el contenido de los cursos (Modulos y Lecciones)
-CREATE TABLE ContenidoCurso (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    curso_id INT NOT NULL,
-    contenido JSON NOT NULL,
-    -- Definir relación con Curso
-    FOREIGN KEY (curso_id) REFERENCES Curso (id)
-);
-CREATE TABLE CursoCliente (
-  id int NOT NULL AUTO_INCREMENT,
-  id_curso int DEFAULT NULL,
-  id_cliente int DEFAULT NULL,
-  PRIMARY KEY (id),
-  KEY id_curso (id_curso),
-  KEY id_cliente (id_cliente),
-  FOREIGN KEY (id_curso) REFERENCES Curso (id),
-  FOREIGN KEY (id_cliente) REFERENCES Cliente (id)
-);
-`;
-
 export const createCliente = async (req: Request, res: Response) => {
 	try {
 		const { nombre, nit, nombre_path, max_usuarios, url_imagen } = req.body;
