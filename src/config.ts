@@ -9,24 +9,33 @@ const configProduction: Config = {
 	port: 3306,
 	password: "4LrK#7KQk?Re",
 	database: "cursosadobe_CursosAdobe",
+	secretkey: "#aisjd-498ASD@",
+	urlBakend: "https://api.cursosadobe.com/",
+	urlFrontend: "https://cursosadobe.com/",
 };
 
 const configPrueba: Config = {
 	host: "localhost",
 	user: "cursosadobe_cursosadobe",
+	port: 3306,
 	password: "4LrK#7KQk?Re",
 	database: "cursosadobe_prueba",
-	port: 3306,
+	secretkey: "#aisjd-498ASD@",
+	urlBakend: "https://api.prueba.cursosadobe.com/",
+	urlFrontend: "https://prueba.cursosadobe.com/",
 };
 
 const configLocal: Config = {
 	host: "localhost",
 	user: "root",
-	password: "skate12345",
-	database: "cursosadobe",
 	port: 3306,
+	password: "",
+	database: "cursosadobe",
+	secretkey: "#aisjd-498ASD@",
+	urlBakend: "http://localhost:3000/",
+	urlFrontend: "http://localhost:4200/",
 };
-export let config: Config;
+let config: Config;
 
 if (process.env.NODE_ENV === "development") {
 	config = configLocal;
@@ -37,3 +46,4 @@ if (process.env.NODE_ENV === "development") {
 } else {
 	config = configLocal;
 }
+export default config;

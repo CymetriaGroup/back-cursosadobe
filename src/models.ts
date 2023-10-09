@@ -4,6 +4,9 @@ export interface Config {
 	port: number;
 	password: string;
 	database: string;
+	secretkey: string;
+	urlBakend: string;
+	urlFrontend: string;
 }
 
 export interface Cliente {
