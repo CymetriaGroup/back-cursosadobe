@@ -9,4 +9,5 @@ router.get("/usuarios", usuarioCtrl.readUsuarios);
 router.put("/usuario/:id", usuarioCtrl.updateUsuario);
 router.delete("/usuario/:id", usuarioCtrl.deleteUsuario);
 router.get("/usuario-verify/:token", usuarioCtrl.verifyEmailUsuario);
+router.post("/usuario-session", usuarioCtrl.addDispositivoUsuario);
 export default router;
