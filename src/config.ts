@@ -12,6 +12,7 @@ const configProduction: Config = {
 	secretkey: "#aisjd-498ASD@",
 	urlBakend: "https://api.cursosadobe.com/",
 	urlFrontend: "https://cursosadobe.com/",
+	assetsPath: "../assets",
 };
 
 const configPrueba: Config = {
@@ -23,6 +24,7 @@ const configPrueba: Config = {
 	secretkey: "#aisjd-498ASD@",
 	urlBakend: "https://api.prueba.cursosadobe.com/",
 	urlFrontend: "https://prueba.cursosadobe.com/",
+	assetsPath: "../assets",
 };
 
 const configLocal: Config = {
@@ -34,6 +36,7 @@ const configLocal: Config = {
 	secretkey: "#aisjd-498ASD@",
 	urlBakend: "http://localhost:3000/",
 	urlFrontend: "http://localhost:4200/",
+	assetsPath: "./assets",
 };
 let config: Config;
 

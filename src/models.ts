@@ -7,6 +7,7 @@ export interface Config {
 	secretkey: string;
 	urlBakend: string;
 	urlFrontend: string;
+	assetsPath: string;
 }
 
 export interface Cliente {
