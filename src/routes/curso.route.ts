@@ -1,17 +1,17 @@
-import { Router } from 'express';
-import * as cursoCtrl from '../controllers/curso.controller';
+import { Router } from "express";
+import * as cursoCtrl from "../controllers/curso.controller";
 
 const router = Router();
 
-router.post('/curso/', cursoCtrl.createCurso);
-router.get('/curso/sin-lecciones', cursoCtrl.readCursosWithoutLecciones);
-router.get('/curso/:id', cursoCtrl.readCursoById);
-router.get('/curso/', cursoCtrl.readCursos);
-router.put('/curso/:id', cursoCtrl.updateCurso);
-router.delete('/curso/:id', cursoCtrl.deleteCurso);
+router.post("/curso", cursoCtrl.createCurso);
+router.get("/curso/:id", cursoCtrl.readCursoById);
+router.get("/cursos", cursoCtrl.readCursos);
+router.put("/curso/:id", cursoCtrl.updateCurso);
+router.delete("/curso/:id", cursoCtrl.deleteCurso);
 
-router.post('/leccion/', cursoCtrl.createLeccion);
-router.put('/leccion/:id', cursoCtrl.updateLeccion);
-router.delete('/leccion/:id', cursoCtrl.deleteLeccion);
+router.post("/curso-cliente", cursoCtrl.createCursoCliente);
+router.get("/curso-cliente/:codigo/:id", cursoCtrl.readCursoClienteById);
+router.delete("/curso-cliente", cursoCtrl.deleteCursoCliente);
 
+router.post("/certificado", cursoCtrl.createCertificado);
 export default router;

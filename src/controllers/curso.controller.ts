@@ -1,184 +1,389 @@
 import db from "../database";
 import { logger } from "../tools";
-import { Request, Response } from 'express';
-import fs from 'fs';
+import { Request, Response } from "express";
+import { formatearFechaEnEspanol, getDuracionVideo } from "../tools";
+import fs from "fs/promises";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import config from "../config";
+
 export const createCurso = async (req: Request, res: Response) => {
-    try {
-        const { nombre, descripcion, precio, url_imagen, nombre_docente, lecciones, nombre_certificado } = req.body;
-        if (!nombre || !descripcion || !precio || !nombre_docente) {
-            return res.status(400).json({ message: "Faltan datos" });
-        } else if (lecciones.length === 0) {
-            return res.status(400).json({ message: "Debe agregar al menos una lección" });
-        }
-        
-        const [curso]:any = await db.query("SELECT * FROM curso WHERE nombre = ?", [nombre]);
-        console.log(curso);
-        if (curso.length > 0) {
-            return res.status(400).json({ message: "El curso ya existe" });
-        } else {
-            const result:any = await db.query("INSERT INTO curso (nombre, descripcion, precio, url_imagen, nombre_docente, nombre_certificado) VALUES (?, ?, ?, ?, ?, ?)", [nombre, descripcion, precio, url_imagen, nombre_docente, nombre_certificado]);
-            const id_curso = result[0].insertId;
-            console.log(id_curso);
-            const leccionesPromises = lecciones.map(async (leccion: any) => {
-                await db.query("INSERT INTO lecciones (id_curso, nombre, descripcion, url_video,posicion) VALUES (?, ?, ?, ?, ?)", [id_curso, leccion.nombre, leccion.descripcion, leccion.url_video, leccion.posicion]);
-            }
-            );
-            await Promise.all(leccionesPromises);
-            res.json({ message: "Curso creado", id: id_curso });
-        }
+  const {
+    nombre,
+    descripcion,
+    precio,
+    url_imagen,
+    nombre_docente,
+    contenido,
+    nombre_certificado,
+  } = req.body;
 
+  if (
+    !nombre ||
+    !descripcion ||
+    !nombre_docente ||
+    !nombre_certificado ||
+    !contenido ||
+    !url_imagen
+  ) {
+    return res.status(400).json({ message: "Faltan datos" });
+  }
 
-    } catch (error:any) {
-        logger(error);
-        return res.status(500).json({ message: error.message });
+  try {
+    const [curso]: any = await db.query(
+      "SELECT * FROM curso WHERE nombre = ?",
+      [nombre]
+    );
+    if (curso.length > 0) {
+      return res.status(400).json({ message: "El curso ya existe" });
+    } else {
+      const result: any = await db.query(
+        "INSERT INTO curso (nombre, descripcion, precio, url_imagen, nombre_docente, nombre_certificado) VALUES (?, ?, ?, ?, ?, ?)",
+        [
+          nombre,
+          descripcion,
+          precio,
+          url_imagen,
+          nombre_docente,
+          nombre_certificado,
+        ]
+      );
+      const id_curso = result[0].insertId;
+
+      for (const item of contenido) {
+        for (let i = 0; i < item.lecciones.length; i++) {
+          const duracion = await getDuracionVideo(item.lecciones[i].url_video);
+          item.lecciones[i] = { ...item.lecciones[i], duracion };
+        }
+      }
+
+      const contenidocurso: any = await db.query(
+        "INSERT INTO contenidocurso (curso_id, contenido) VALUES (?, ?)",
+        [id_curso, JSON.stringify(contenido)]
+      );
+      res.json({ message: "curso creado", id: id_curso });
     }
-}
+  } catch (error: any) {
+    logger(error);
+    return res.status(500).json({ message: error.message });
+  }
+};
 
 export const readCursoById = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        if (!id || isNaN(parseInt(id))) {
-            return res.status(400).json({ message: "ID de curso no válido" });
-        }
-        let [result]:any = await db.query("SELECT * FROM curso WHERE id = ?", [id]);
-        if (result.length === 0) {
-            return res.status(400).json({ message: "El curso no existe" });
-        }
-        const [lecciones]: any = await db.query("SELECT * FROM lecciones WHERE id_curso = ?", [id]);
-        const curso = result[0];
-        console.log(lecciones);
-        curso.lecciones = lecciones;
-        res.json(curso);
-    } catch (error:any) {
-        logger(error);
-        return res.status(500).json({ message: error.message });
+  const { id } = req.params;
+
+  if (!id) {
+    return res.status(400).json({ message: "Faltan datos" });
+  }
+
+  try {
+    const [curso]: any = await db.query("SELECT * FROM curso WHERE id = ?", [
+      id,
+    ]);
+    if (curso.length > 0) {
+      const [contenidocurso]: any = await db.query(
+        "SELECT * FROM contenidocurso WHERE curso_id = ?",
+        [id]
+      );
+      const contenido = contenidocurso[0].contenido;
+
+      curso[0].contenido = contenido;
+      res.json(curso[0]);
+    } else {
+      return res.status(400).json({ message: "El curso no existe" });
     }
-}
+  } catch (error: any) {
+    logger(error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const readCursoClienteById = async (req: Request, res: Response) => {
+  const { codigo, id } = req.params;
+
+  if (!codigo || !id) {
+    return res.status(400).json({ message: "Faltan datos" });
+  }
+
+  try {
+    const [cliente]: any = await db.query(
+      "SELECT * FROM cliente WHERE codigo = ?",
+      [codigo]
+    );
+    if (cliente.length > 0) {
+      const [cursoCliente]: any = await db.query(
+        "SELECT * FROM cursocliente WHERE id_curso = ? AND id_cliente = ?",
+        [id, cliente[0].id]
+      );
+      if (cursoCliente.length > 0) {
+        const [curso]: any = await db.query(
+          "SELECT * FROM curso WHERE id = ?",
+          [id]
+        );
+        if (curso.length > 0) {
+          const [contenidocurso]: any = await db.query(
+            "SELECT * FROM contenidocurso WHERE curso_id = ?",
+            [id]
+          );
+          const contenido = contenidocurso[0].contenido;
+
+          curso[0].contenido = contenido;
+          res.json({ curso: curso[0], cliente: cliente[0] });
+        } else {
+          return res.status(400).json({ message: "El curso no existe" });
+        }
+      } else {
+        return res
+          .status(400)
+          .json({ message: "El cliente no tiene el curso" });
+      }
+    } else {
+      return res.status(400).json({ message: "El cliente no existe" });
+    }
+  } catch (error: any) {
+    logger(error);
+    return res.status(500).json({ message: error.message });
+  }
+};
 
 export const readCursos = async (req: Request, res: Response) => {
-    try {
-        const [cursos]:any = await db.query("SELECT * FROM curso");
-        const cursosPromises = cursos.map(async (curso: any) => {
-            const [lecciones] = await db.query("SELECT * FROM lecciones WHERE id_curso = ?", [curso.id]);
-            curso.lecciones = lecciones;
-            return curso;
-        });
-        const cursosdb = await Promise.all(cursosPromises);
-        res.json(cursosdb);
-    } catch (error:any) {
-        logger(error);
-        return res.status(500).json({ message: error.message });
-    }
-}
+  try {
+    const [cursos]: any = await db.query("SELECT * FROM curso");
 
-export const readCursosWithoutLecciones = async (req: Request, res: Response) => {
-    try {
-        const [cursos] = await db.query("SELECT * FROM curso");
-        res.json(cursos);
-    } catch (error:any) {
-        logger(error);
-        return res.status(500).json({ message: error.message });
+    for (let i = 0; i < cursos.length; i++) {
+      const [contenidocurso]: any = await db.query(
+        "SELECT * FROM contenidocurso WHERE curso_id = ?",
+        [cursos[i].id]
+      );
+      cursos[i].contenido = contenidocurso[0].contenido;
     }
-}
+
+    res.json(cursos);
+  } catch (error: any) {
+    logger(error);
+    return res.status(500).json({ message: error.message });
+  }
+};
 
 export const updateCurso = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        const { nombre, descripcion, precio, url_imagen, nombre_docente, nombre_certificado } = req.body;
-        if (!id || isNaN(parseInt(id))) {
-            return res.status(400).json({ message: "ID de curso no válido" });
-        } else if (!nombre || !descripcion || !precio || !nombre_docente) {
-            return res.status(400).json({ message: "Faltan datos" });
+  const { id } = req.params;
+  const {
+    nombre,
+    descripcion,
+    precio,
+    url_imagen,
+    nombre_docente,
+    contenido,
+    nombre_certificado,
+  } = req.body;
+
+  if (
+    !id ||
+    !nombre ||
+    !descripcion ||
+    !nombre_docente ||
+    !nombre_certificado ||
+    !contenido ||
+    !url_imagen
+  ) {
+    return res.status(400).json({ message: "Faltan datos" });
+  }
+
+  try {
+    const [curso]: any = await db.query("SELECT * FROM curso WHERE id = ?", [
+      id,
+    ]);
+    if (curso.length > 0) {
+      const result: any = await db.query(
+        "UPDATE curso SET nombre = ?, descripcion = ?, precio = ?, url_imagen = ?, nombre_docente = ?, nombre_certificado = ? WHERE id = ?",
+        [
+          nombre,
+          descripcion,
+          precio,
+          url_imagen,
+          nombre_docente,
+          nombre_certificado,
+          id,
+        ]
+      );
+
+      for (const item of contenido) {
+        for (let i = 0; i < item.lecciones.length; i++) {
+          const duracion = await getDuracionVideo(item.lecciones[i].url_video);
+          item.lecciones[i] = { ...item.lecciones[i], duracion };
         }
-        const curso:any = await db.query("SELECT * FROM curso WHERE id = ?", [id]);
-        if (curso.length === 0) {
-            return res.status(400).json({ message: "El curso no existe" });
-        }
-        await db.query("UPDATE curso SET nombre = ?, descripcion = ?, precio = ?, url_imagen = ?, nombre_docente = ?, nombre_certificado = ? WHERE id = ?", [nombre, descripcion, precio, url_imagen, nombre_docente, nombre_certificado, id]);
-        res.json({ message: "Curso actualizado" });
-    } catch (error:any) {
-        logger(error);
-        return res.status(500).json({ message: error.message });
+      }
+
+      const contenidocurso: any = await db.query(
+        "UPDATE contenidocurso SET contenido = ? WHERE curso_id = ?",
+        [JSON.stringify(contenido), id]
+      );
+      res.json({ message: "curso actualizado", id: id });
+    } else {
+      return res.status(400).json({ message: "El curso no existe" });
     }
-}
+  } catch (error: any) {
+    logger(error);
+    return res.status(500).json({ message: error.message });
+  }
+};
 
 export const deleteCurso = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        if (!id || isNaN(parseInt(id))) {
-            return res.status(400).json({ message: "ID de curso no válido" });
-        }
-        const curso:any = await db.query("SELECT * FROM curso WHERE id = ?", [id]);
-        if (curso.length === 0) {
-            return res.status(400).json({ message: "El curso no existe" });
-        }
-        await db.query("DELETE FROM lecciones WHERE id_curso = ?", [id]);
-        await db.query("DELETE FROM curso WHERE id = ?", [id]);
-        res.json({ message: "Curso eliminado" });
-    } catch (error:any) {
-        logger(error);
-        return res.status(500).json({ message: error.message });
-    }
-}
+  const { id } = req.params;
 
-export const createLeccion = async (req: Request, res: Response) => {
-    try {
-        const { id_curso, nombre, descripcion, url_video, posicion } = req.body;
-        console.log(req.body);
+  if (!id) {
+    return res.status(400).json({ message: "Faltan datos" });
+  }
+  try {
+    const [curso]: any = await db.query("SELECT * FROM curso WHERE id = ?", [
+      id,
+    ]);
+    if (curso.length > 0) {
+      const contenidocurso: any = await db.query(
+        "DELETE FROM contenidocurso WHERE curso_id = ?",
+        [id]
+      );
+      await db.query("DELETE FROM cursocliente WHERE id_curso = ?", [id]);
+      const result: any = await db.query("DELETE FROM curso WHERE id = ?", [
+        id,
+      ]);
 
-        if (!id_curso || !nombre || !descripcion || !posicion) {
-            return res.status(400).json({ message: "Faltan datos" });
-        }
-        const curso: any = await db.query("SELECT * FROM curso WHERE id = ?", [id_curso]);
-        if (curso.length === 0) {
-            return res.status(400).json({ message: "El curso no existe" });
-        }
-        const result:any = await db.query("INSERT INTO lecciones (id_curso, nombre, descripcion, url_video, posicion) VALUES (?, ?, ?, ?, ?)", [id_curso, nombre, descripcion, url_video, posicion]);
-        res.json({ message: "Lección creada", id: result[0].insertId });
-    } catch (error: any) {
-        logger(error);
-        return res.status(500).json({ message: error.message });
+      res.json({ message: "curso eliminado", id: id });
+    } else {
+      return res.status(400).json({ message: "El curso no existe" });
     }
-}
+  } catch (error: any) {
+    logger(error);
+    return res.status(500).json({ message: error.message });
+  }
+};
 
-export const updateLeccion = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        const { nombre, descripcion, url_video, posicion } = req.body;
-        console.log(req.body);
-        if (!id || isNaN(parseInt(id))) {
-            return res.status(400).json({ message: "ID de lección no válido" });
-        } else if (!nombre || !descripcion || !posicion) {
-            return res.status(400).json({ message: "Faltan datos" });
-        }
-        const leccion:any = await db.query("SELECT * FROM lecciones WHERE id = ?", [id]);
-        if (leccion.length === 0) {
-            return res.status(400).json({ message: "La lección no existe" });
-        }
-        await db.query("UPDATE lecciones SET nombre = ?, descripcion = ?, url_video = ?, posicion = ? WHERE id = ?", [nombre, descripcion, url_video, posicion, id]);
-        res.json({ message: "Lección actualizada" });
-    } catch (error:any) {
-        logger(error);
-        return res.status(500).json({ message: error.message });
-    }
-}
+export const createCursoCliente = async (req: Request, res: Response) => {
+  const { id_curso, id_cliente } = req.body;
 
-export const deleteLeccion = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        if (!id || isNaN(parseInt(id))) {
-            return res.status(400).json({ message: "ID de lección no válido" });
-        }
-        const [leccion]:any = await db.query("SELECT * FROM lecciones WHERE id = ?", [id]);
-        if (leccion.length === 0) {
-            
-            return res.status(400).json({ message: "La lección no existe" });
-        }
-        console.log(leccion[0]);
-        await db.query("DELETE FROM lecciones WHERE id = ?", [id]);
-        res.json({ message: "Lección eliminada" });
-    } catch (error:any) {
-        logger(error);
-        return res.status(500).json({ message: error.message });
+  if (!id_curso || !id_cliente) {
+    return res.status(400).json({ message: "Faltan datos" });
+  }
+  try {
+    const [curso]: any = await db.query("SELECT * FROM curso WHERE id = ?", [
+      id_curso,
+    ]);
+    const [cliente]: any = await db.query(
+      "SELECT * FROM cliente WHERE id = ?",
+      [id_cliente]
+    );
+    if (curso.length > 0 && cliente.length > 0) {
+      const result: any = await db.query(
+        "INSERT INTO cursocliente (id_curso, id_cliente) VALUES (?, ?)",
+        [id_curso, id_cliente]
+      );
+      res.json({ message: "curso agregado", id: result[0].insertId });
+    } else {
+      return res
+        .status(400)
+        .json({ message: "El curso o el cliente no existe" });
     }
-}
+  } catch (error: any) {
+    logger(error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const deleteCursoCliente = async (req: Request, res: Response) => {
+  const { id_curso, id_cliente } = req.body;
+
+  if (!id_curso || !id_cliente) {
+    return res.status(400).json({ message: "Faltan datos" });
+  }
+  try {
+    const [curso]: any = await db.query("SELECT * FROM curso WHERE id = ?", [
+      id_curso,
+    ]);
+    const [cliente]: any = await db.query(
+      "SELECT * FROM cliente WHERE id = ?",
+      [id_cliente]
+    );
+    if (curso.length > 0 && cliente.length > 0) {
+      const result: any = await db.query(
+        "DELETE FROM cursocliente WHERE id_curso = ? AND id_cliente = ?",
+        [id_curso, id_cliente]
+      );
+      res.json({ message: "curso eliminado", id: id_curso });
+    } else {
+      return res
+        .status(400)
+        .json({ message: "El curso o el cliente no existe" });
+    }
+  } catch (error: any) {
+    logger(error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const createCertificado = async (req: Request, res: Response) => {
+  try {
+    const nombreUsuario = req.body.nombreUsuario;
+    const nombreCertificado = req.body.nombreCertificado;
+    console.log(req.body);
+    const fecha = new Date().toISOString().slice(0, 10);
+
+    const plantillaPdf = await fs.readFile(
+      `${config.assetsPath}/sociedadDigital.pdf`
+    );
+    if (!plantillaPdf) {
+      return res
+        .status(400)
+        .json({ message: "No se encontró la plantilla del certificado" });
+    }
+    const pdfDoc = await PDFDocument.load(plantillaPdf);
+    const pages = pdfDoc.getPages();
+    const firstPage = pages[0];
+    const pageWidth = firstPage.getWidth();
+    const textoFecha = `Emitido en Bogotá D.C. el ${formatearFechaEnEspanol(
+      fecha
+    )}.`;
+    drawCenteredText(firstPage, nombreUsuario, 330, 15, rgb(0, 0, 0));
+    drawCenteredText(
+      firstPage,
+      nombreCertificado,
+      240,
+      30,
+      rgb(81 / 255, 83 / 255, 97 / 255)
+    );
+    drawCenteredText(
+      firstPage,
+      textoFecha,
+      80,
+      10,
+      rgb(81 / 255, 83 / 255, 97 / 255)
+    );
+    const pdfBytes = await pdfDoc.save();
+
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=certificado.pdf"
+    );
+    res.setHeader("Content-Type", "application/pdf");
+    res.send(Buffer.from(pdfBytes));
+    function estimateTextWidth(text, fontSize) {
+      const averageCharWidth = fontSize * 0.5;
+      return text.length * averageCharWidth;
+    }
+
+    async function drawCenteredText(page, text, y, size, color) {
+      const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+      const textWidth = font.widthOfTextAtSize(text, size);
+      const x = (pageWidth - textWidth) / 2;
+
+      page.drawText(text, {
+        x: x,
+        y: y,
+        size: size,
+        color: color,
+        font: font,
+      });
+    }
+  } catch (error) {
+    logger(error);
+    res.status(500).json({ message: error, status: 500 });
+  }
+};

@@ -1,6 +1,6 @@
 import db from "../database";
-import { logger, sendEmail, verifyToken, generateRandomCode } from "../tools";
 import { Request, Response } from "express";
+import { logger, sendEmail, verifyToken, generateRandomCode } from "../tools";
 import config from "../config";
 
 export const createUsuario = async (req: Request, res: Response) => {
