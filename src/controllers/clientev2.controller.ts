@@ -2,6 +2,22 @@ import db from "../database";
 import { generateRandomCode, logger } from "../tools";
 import { Request, Response } from "express";
 
+// CREATE TABLE Cliente_Usuario (
+// 	id INT NOT NULL AUTO_INCREMENT,
+// 	id_cliente INT NOT NULL,
+// 	id_usuario INT NOT NULL,
+// 	PRIMARY KEY (id)
+// );
+
+// CREATE TABLE Cliente_Curso (
+// 	id INT NOT NULL AUTO_INCREMENT,
+// 	id_cliente INT NOT NULL,
+// 	id_curso INT NOT NULL,
+// 	precio INT NOT NULL,
+// 	certificado JSON NOT NULL, -- nobre de certificado, url de certificado
+// 	PRIMARY KEY (id)
+// );
+
 export const createCliente = async (req: Request, res: Response) => {
   try {
     let {
@@ -50,7 +66,7 @@ export const createCliente = async (req: Request, res: Response) => {
           descripcion,
         ]
       );
-      res.json({ message: "Cliente creado", id: result[0] });
+      res.json({ message: "Cliente creado", id: result.insertId });
     }
   } catch (error: any) {
     console.log(error);
@@ -218,6 +234,207 @@ export const deleteCliente = async (req: Request, res: Response) => {
       res.json({ message: "Cliente eliminado" });
     } else {
       res.status(404).json({ message: "Cliente no encontrado" });
+    }
+  } catch (error: any) {
+    console.log(error);
+    logger(error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const createClienteCurso = async (req: Request, res: Response) => {
+  // Inscribir cliente a curso
+  try {
+    const { id_cliente, id_curso, precio, certificado } = req.body;
+
+    if (!id_cliente || !id_curso || !precio || !certificado) {
+      return res.status(400).json({ message: "Faltan datos" });
+    }
+
+    const [cliente]: any = await db.query(
+      "SELECT * FROM cliente WHERE id = ?",
+      [id_cliente]
+    );
+    if (cliente.length === 0) {
+      return res.status(400).json({ message: "El cliente no existe" });
+    }
+
+    const [curso]: any = await db.query("SELECT * FROM curso WHERE id = ?", [
+      id_curso,
+    ]);
+    if (curso.length === 0) {
+      return res.status(400).json({ message: "El curso no existe" });
+    }
+
+    const [cliente_curso]: any = await db.query(
+      "SELECT * FROM cliente_curso WHERE id_cliente = ? AND id_curso = ?",
+      [id_cliente, id_curso]
+    );
+    if (cliente_curso.length > 0) {
+      return res
+        .status(400)
+        .json({ message: "El cliente ya está inscrito en el curso" });
+    }
+
+    await db.query(
+      "INSERT INTO cliente_curso (id_cliente, id_curso, precio, certificado) VALUES (?, ?, ?, ?)",
+      [id_cliente, id_curso, precio, JSON.stringify(certificado)]
+    );
+    res.json({ message: "Cliente inscrito al curso" });
+  } catch (error) {
+    logger(error);
+    res.status(500).json({ message: "Error al inscribir el cliente al curso" });
+  }
+};
+
+export const readClienteCurso = async (req: Request, res: Response) => {
+  try {
+    const { codigo, id } = req.params;
+
+    const [cliente]: any = await db.query(
+      "SELECT * FROM cliente WHERE codigo = ?",
+      [codigo]
+    );
+
+    if (cliente.length === 0) {
+      return res.status(400).json({ message: "El cliente no existe" });
+    }
+
+    console.log(cliente[0].id, id);
+
+    const [cliente_curso]: any = await db.query(
+      "SELECT * FROM cliente_curso WHERE id_cliente = ? AND id_curso = ?",
+      [cliente[0].id, id]
+    );
+    if (cliente_curso.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "El cliente no está inscrito en el curso" });
+    }
+    const [curso]: any = await db.query("SELECT * FROM curso WHERE id = ?", [
+      cliente_curso[0].id_curso,
+    ]);
+    res.json({
+      curso: curso[0],
+      cliente: cliente[0],
+      cliente_curso: cliente_curso[0],
+    });
+  } catch (error) {
+    logger(error);
+    res
+      .status(500)
+      .json({ message: "Error al obtener el cliente inscrito al curso" });
+  }
+};
+
+export const updateClienteCurso = async (req: Request, res: Response) => {
+  try {
+    const { id_cliente, id_curso } = req.params;
+    const { precio, certificado } = req.body;
+
+    if (!precio || !certificado) {
+      return res.status(400).json({ message: "Faltan datos" });
+    }
+
+    const [cliente_curso]: any = await db.query(
+      "SELECT * FROM cliente_curso WHERE id_cliente = ? AND id_curso = ?",
+      [id_cliente, id_curso]
+    );
+    if (cliente_curso.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "El cliente no está inscrito en el curso" });
+    }
+
+    await db.query(
+      "UPDATE cliente_curso SET precio = ?, certificado = ? WHERE id_cliente = ? AND id_curso = ?",
+      [precio, JSON.stringify(certificado), id_cliente, id_curso]
+    );
+    res.json({ message: "Cliente actualizado en el curso" });
+  } catch (error) {
+    logger(error);
+    res
+      .status(500)
+      .json({ message: "Error al actualizar el cliente inscrito al curso" });
+  }
+};
+
+export const deleteClienteCurso = async (req: Request, res: Response) => {
+  try {
+    const { id_curso, id_cliente } = req.params;
+    const [cliente_curso]: any = await db.query(
+      "SELECT * FROM cliente_curso WHERE id_cliente = ? AND id_curso = ?",
+      [id_cliente, id_curso]
+    );
+    if (cliente_curso.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "El cliente no está inscrito en el curso" });
+    }
+    await db.query(
+      "DELETE FROM cliente_curso WHERE id_cliente = ? AND id_curso = ?",
+      [id_cliente, id_curso]
+    );
+    res.json({ message: "Cliente eliminado del curso" });
+  } catch (error) {
+    logger(error);
+    res
+      .status(500)
+      .json({ message: "Error al eliminar el cliente inscrito al curso" });
+  }
+};
+
+export const createClienteUsuario = async (req: Request, res: Response) => {
+  try {
+    const { id_cliente, id_usuario } = req.body;
+
+    if (!id_cliente || !id_usuario) {
+      return res
+        .status(400)
+        .json({ message: "Todos los campos son obligatorios" });
+    }
+
+    const [cliente]: any = await db.query(
+      "SELECT * FROM cliente WHERE id = ?",
+      [id_cliente]
+    );
+
+    const [usuario]: any = await db.query(
+      "SELECT * FROM usuario WHERE id = ?",
+      [id_usuario]
+    );
+
+    if (cliente.length > 0 && usuario.length > 0) {
+      const [result]: any = await db.query(
+        "INSERT INTO cliente_usuario (id_cliente, id_usuario) VALUES (?, ?)",
+        [id_cliente, id_usuario]
+      );
+      res.json({ message: "Cliente_Usuario creado", id: result[0] });
+    } else {
+      res.status(404).json({ message: "Cliente o usuario no encontrado" });
+    }
+  } catch (error: any) {
+    console.log(error);
+    logger(error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const deleteClienteUsuario = async (req: Request, res: Response) => {
+  try {
+    const { id_cliente, id_usuario } = req.body;
+    const [cliente_usuario]: any = await db.query(
+      "SELECT * FROM cliente_usuario WHERE id_cliente = ? AND id_usuario = ?",
+      [id_cliente, id_usuario]
+    );
+    if (cliente_usuario.length > 0) {
+      await db.query(
+        "DELETE FROM cliente_usuario WHERE id_cliente = ? AND id_usuario = ?",
+        [id_cliente, id_usuario]
+      );
+      res.json({ message: "Cliente_Usuario eliminado" });
+    } else {
+      res.status(404).json({ message: "Cliente_Usuario no encontrado" });
     }
   } catch (error: any) {
     console.log(error);

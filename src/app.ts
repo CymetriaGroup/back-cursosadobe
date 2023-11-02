@@ -4,7 +4,7 @@ import morgan from "morgan";
 import { logger } from "./tools";
 import cursoRoutes from "./routes/cursov2.route";
 import clienteRoutes from "./routes/clientev2.route";
-import usuarioRoutes from "./routes/usuario.route";
+import usuarioRoutes from "./routes/usuariov2.route";
 import bodyParser from "body-parser";
 import multer from "multer";
 import fs from "fs";

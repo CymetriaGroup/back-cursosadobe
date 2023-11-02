@@ -12,10 +12,10 @@ CREATE TABLE Curso (
 
 CREATE TABLE Cliente (
 	id INT NOT NULL AUTO_INCREMENT,
-	nombre VARCHAR(255) NOT NULL,
-	nit VARCHAR(255) NOT NULL,
-	codigo VARCHAR(255) NOT NULL UNIQUE,
-	nombre_path VARCHAR(255) NOT NULL,
+	nombre ALTER TABLE Cliente,
+	nit MODIFY COLUMN `nit` VARCHAR(255) NOT NULL UNIQUE,
+	codigo MODIFY COLUMN `nombre_path` VARCHAR(255) NOT NULL UNIQUE,
+	nombre_path MODIFY COLUMN `nombre` VARCHAR(255) NOT NULL UNIQUE,
 	url_imagen VARCHAR(255) NOT NULL,
 	max_usuarios INT NOT NULL,
 	descripcion VARCHAR(255) NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE Usuario (
 	telefono VARCHAR(255),
 	empresa VARCHAR(255),
 	cargo VARCHAR(255) NOT NULL,
-	verificado TINYINT(1) NOT NULL,
+	verificado TINYINT(1) NOT NULL DEFAULT 0,
 	PRIMARY KEY (id)
 );
 
