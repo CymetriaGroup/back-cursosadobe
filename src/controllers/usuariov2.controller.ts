@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import {
   encrypt,
   generateColors,
+  generateToken,
   logger,
   sendEmail,
   verifyToken,
@@ -206,7 +207,25 @@ export const verifyEmailUsuario = async (req: Request, res: Response) => {
         sub,
       ]);
 
-      res.redirect(config.urlFrontend + "/verify");
+      const [cliente_usuario] = await db.query(
+        "SELECT * FROM Cliente_Usuario WHERE id_usuario = ? ",
+        [usuario[0].id]
+      );
+
+      const [usuario_progreso] = await db.query(
+        "SELECT * FROM Usuario_Progreso WHERE id_usuario = ?",
+        [usuario[0].id]
+      );
+
+      const user = {
+        ...usuario[0],
+        cliente_usuario,
+        usuario_progreso,
+        verificado: 1,
+      };
+      const token = await generateToken(user);
+
+      res.redirect(config.urlFrontend + "/verify/" + token);
     } else {
       res.status(404).json({ message: "Usuario no encontrado" });
     }
@@ -246,10 +265,12 @@ export const loginUsuario = async (req: Request, res: Response) => {
 export const sendMailVerifyUsuario = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
+    console.log(email);
     const [usuario]: any = await db.query(
       "SELECT * FROM Usuario WHERE email = ?",
       [email]
     );
+    console.log(usuario);
     if (usuario.length > 0) {
       const sender = await sendEmail(email, "verification");
 
@@ -271,6 +292,7 @@ export const sendMailVerifyUsuario = async (req: Request, res: Response) => {
 export const createUsuarioProgreso = async (req: Request, res: Response) => {
   try {
     const { id_curso, id_usuario, progreso } = req.body;
+    console.log(req.body);
     const [usuario]: any = await db.query(
       "SELECT * FROM Usuario WHERE id = ?",
       [id_usuario]
@@ -278,7 +300,7 @@ export const createUsuarioProgreso = async (req: Request, res: Response) => {
     if (usuario.length > 0) {
       const [result]: any = await db.query(
         "INSERT INTO Usuario_Progreso (id_curso, id_usuario, progreso) VALUES (?, ?, ?)",
-        [id_curso, id_usuario, progreso]
+        [id_curso, id_usuario, JSON.stringify(progreso)]
       );
       res.json({ message: "Progreso creado", id: result.insertId });
     } else {

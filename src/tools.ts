@@ -131,14 +131,14 @@ export const sendEmail = async (
     return false;
   }
 };
-export const generateToken = async (email: string) => {
+export const generateToken = async (data: any) => {
   const secret = new TextEncoder().encode(config.secretkey);
 
   const alg = "HS256";
 
   const payload = {
     iss: "cursosadobe.com",
-    sub: email,
+    sub: data,
     aud: "cursosadobe.com",
     iat: Math.floor(Date.now() / 1000),
   };
@@ -175,7 +175,6 @@ export const generateColors = () => {
 
   return { color, background };
 };
-
 export async function encrypt(data: string) {
   const salt = await bcrypt.genSalt(11);
   return await bcrypt.hash(data, salt);

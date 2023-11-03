@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS Cliente_Curso (
 CREATE TABLE IF NOT EXISTS Cliente_Usuario (
 	id INT NOT NULL AUTO_INCREMENT,
 	id_cliente INT NOT NULL,
+	nombre_path VARCHAR(255) NOT NULL,
 	id_usuario INT NOT NULL,
 	PRIMARY KEY (id)
 );
