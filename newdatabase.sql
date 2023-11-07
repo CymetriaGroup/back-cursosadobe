@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS Curso (
 	nombre VARCHAR(255) NOT NULL,
 	descripcion VARCHAR(255) NOT NULL,
 	url_imagen VARCHAR(255) NOT NULL,
-	modulos JSON NOT NULL,
+	modulos JSON ,
 	docente VARCHAR(255) NOT NULL,
 	color VARCHAR(255),
 	certificado JSON NOT NULL,

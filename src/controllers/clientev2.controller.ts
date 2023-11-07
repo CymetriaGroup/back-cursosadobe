@@ -114,7 +114,7 @@ export const readClienteById = async (req: Request, res: Response) => {
         cursos.push(cursoDB[0]);
       }
 
-      res.json({ ...cliente[0], usuarios, cursos });
+      res.json({ ...cliente[0], usuarios, cursos: cursoCliente });
     } else {
       res.status(404).json({ message: "Cliente no encontrado" });
     }
@@ -338,11 +338,11 @@ export const createClienteCurso = async (req: Request, res: Response) => {
         .json({ message: "El cliente ya está inscrito en el curso" });
     }
 
-    await db.query(
+    const [query]: any = await db.query(
       "INSERT INTO cliente_curso (id_cliente, id_curso, precio, certificado) VALUES (?, ?, ?, ?)",
       [id_cliente, id_curso, precio, JSON.stringify(certificado)]
     );
-    res.json({ message: "Cliente inscrito al curso" });
+    res.json({ message: "Cliente inscrito al curso", id: query.insertId });
   } catch (error) {
     logger(error);
     res.status(500).json({ message: "Error al inscribir el cliente al curso" });

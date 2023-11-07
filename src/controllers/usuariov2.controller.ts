@@ -252,7 +252,27 @@ export const loginUsuario = async (req: Request, res: Response) => {
         return res.status(400).json({ message: "Contraseña incorrecta" });
       }
 
-      res.json(usuario[0]);
+      if (!usuario[0].verificado) {
+        return res.status(400).json({ message: "Usuario no verificado" });
+      }
+
+      const [cliente_usuario] = await db.query(
+        "SELECT * FROM Cliente_Usuario WHERE id_usuario = ? ",
+        [usuario[0].id]
+      );
+
+      const [usuario_progreso] = await db.query(
+        "SELECT * FROM Usuario_Progreso WHERE id_usuario = ?",
+        [usuario[0].id]
+      );
+
+      const user = {
+        ...usuario[0],
+        cliente_usuario,
+        usuario_progreso,
+      };
+
+      res.json(user);
     } else {
       res.status(404).json({ message: "Usuario no encontrado" });
     }
