@@ -16,5 +16,7 @@ router.get("/usuario-verify/:token", usuarioCtrl.verifyEmailUsuario);
 router.post("/usuario-progreso", usuarioCtrl.createUsuarioProgreso);
 router.put("/usuario-progreso/:id", usuarioCtrl.updateUsuarioProgreso);
 
+router.post("/certificado", usuarioCtrl.getCertificado);
+
 // router.post("/usuario-session", usuarioCtrl.addDispositivoUsuario);
 export default router;
