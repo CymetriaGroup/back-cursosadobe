@@ -53,7 +53,7 @@ export const createUsuario = async (req: Request, res: Response) => {
 
 	try {
 		const [usuario]: any = await db.query(
-			"SELECT * FROM Usuario WHERE email = ?",
+			"SELECT * FROM usuario WHERE email = ?",
 			[email],
 		);
 
@@ -63,7 +63,7 @@ export const createUsuario = async (req: Request, res: Response) => {
 		const passwordEncrypted = await encrypt(`${password}`);
 
 		const [result]: any = await db.query(
-			"INSERT INTO Usuario (nombre, email, password, telefono, empresa, cargo, url_imagen) VALUES (?, ?, ?, ?, ?, ?, ?)",
+			"INSERT INTO usuario (nombre, email, password, telefono, empresa, cargo, url_imagen) VALUES (?, ?, ?, ?, ?, ?, ?)",
 			[nombre, email, passwordEncrypted, telefono, empresa, cargo, url_imagen],
 		);
 
@@ -78,15 +78,15 @@ export const readUsuarioById = async (req: Request, res: Response) => {
 	try {
 		const { id } = req.params;
 		const [usuario]: any = await db.query(
-			"SELECT * FROM Usuario WHERE id = ?",
+			"SELECT * FROM usuario WHERE id = ?",
 			[id],
 		);
 		const [progreso]: any = await db.query(
-			"SELECT * FROM Usuario_Progreso WHERE id_usuario = ?",
+			"SELECT * FROM usuario_Progreso WHERE id_usuario = ?",
 			[id],
 		);
 		const [cliente]: any = await db.query(
-			"SELECT * FROM Cliente_Usuario WHERE id_usuario = ?",
+			"SELECT * FROM cliente_usuario WHERE id_usuario = ?",
 			[id],
 		);
 		if (usuario.length > 0) {
@@ -131,7 +131,7 @@ export const updateUsuario = async (req: Request, res: Response) => {
 		}
 
 		const [usuario]: any = await db.query(
-			"SELECT * FROM Usuario WHERE id = ?",
+			"SELECT * FROM usuario WHERE id = ?",
 			[id],
 		);
 
@@ -147,7 +147,7 @@ export const updateUsuario = async (req: Request, res: Response) => {
 		if (usuario.length > 0) {
 			const passwordEncrypted = await encrypt(`${password}`);
 			await db.query(
-				"UPDATE Usuario SET nombre = ?, email = ?, password = ?, url_imagen = ?, telefono = ?, empresa = ?, cargo = ? WHERE id = ?",
+				"UPDATE usuario SET nombre = ?, email = ?, password = ?, url_imagen = ?, telefono = ?, empresa = ?, cargo = ? WHERE id = ?",
 				[
 					nombre,
 					email,
@@ -174,15 +174,15 @@ export const deleteUsuario = async (req: Request, res: Response) => {
 	try {
 		const { id } = req.params;
 		const [usuario]: any = await db.query(
-			"SELECT * FROM Usuario WHERE id = ?",
+			"SELECT * FROM usuario WHERE id = ?",
 			[id],
 		);
 		if (usuario.length > 0) {
-			await db.query("DELETE FROM Usuario WHERE id = ?", [id]);
+			await db.query("DELETE FROM usuario WHERE id = ?", [id]);
 
-			await db.query("DELETE FROM Usuario_Progreso WHERE id_usuario = ?", [id]);
+			await db.query("DELETE FROM usuario_progreso WHERE id_usuario = ?", [id]);
 
-			await db.query("DELETE FROM Cliente_Usuario WHERE id_usuario = ?", [id]);
+			await db.query("DELETE FROM cliente_usuario WHERE id_usuario = ?", [id]);
 
 			res.json({ message: "Usuario eliminado" });
 		} else {
@@ -211,12 +211,12 @@ export const verifyEmailUsuario = async (req: Request, res: Response) => {
 			]);
 
 			const [cliente_usuario] = await db.query(
-				"SELECT * FROM Cliente_Usuario WHERE id_usuario = ? ",
+				"SELECT * FROM cliente_usuario WHERE id_usuario = ? ",
 				[usuario[0].id],
 			);
 
 			const [usuario_progreso] = await db.query(
-				"SELECT * FROM Usuario_Progreso WHERE id_usuario = ?",
+				"SELECT * FROM usuario_progreso WHERE id_usuario = ?",
 				[usuario[0].id],
 			);
 
@@ -244,7 +244,7 @@ export const loginUsuario = async (req: Request, res: Response) => {
 		const { email, password } = req.body;
 
 		const [usuario]: any = await db.query(
-			"SELECT * FROM Usuario WHERE email = ?",
+			"SELECT * FROM usuario WHERE email = ?",
 			[email],
 		);
 
@@ -260,12 +260,12 @@ export const loginUsuario = async (req: Request, res: Response) => {
 			}
 
 			const [cliente_usuario] = await db.query(
-				"SELECT * FROM Cliente_Usuario WHERE id_usuario = ? ",
+				"SELECT * FROM cliente_usuario WHERE id_usuario = ? ",
 				[usuario[0].id],
 			);
 
 			const [usuario_progreso] = await db.query(
-				"SELECT * FROM Usuario_Progreso WHERE id_usuario = ?",
+				"SELECT * FROM usuario_progreso WHERE id_usuario = ?",
 				[usuario[0].id],
 			);
 
@@ -290,7 +290,7 @@ export const sendMailVerifyUsuario = async (req: Request, res: Response) => {
 		const { email } = req.body;
 		console.log(email);
 		const [usuario]: any = await db.query(
-			"SELECT * FROM Usuario WHERE email = ?",
+			"SELECT * FROM usuario WHERE email = ?",
 			[email],
 		);
 		console.log(usuario);
@@ -317,12 +317,12 @@ export const createUsuarioProgreso = async (req: Request, res: Response) => {
 		const { id_curso, id_usuario, progreso } = req.body;
 		console.log(req.body);
 		const [usuario]: any = await db.query(
-			"SELECT * FROM Usuario WHERE id = ?",
+			"SELECT * FROM usuario WHERE id = ?",
 			[id_usuario],
 		);
 		if (usuario.length > 0) {
 			const [result]: any = await db.query(
-				"INSERT INTO Usuario_Progreso (id_curso, id_usuario, progreso) VALUES (?, ?, ?)",
+				"INSERT INTO usuario_progreso (id_curso, id_usuario, progreso) VALUES (?, ?, ?)",
 				[id_curso, id_usuario, JSON.stringify(progreso)],
 			);
 			res.json({ message: "Progreso creado", id: result.insertId });
@@ -341,12 +341,12 @@ export const updateUsuarioProgreso = async (req: Request, res: Response) => {
 		const { id } = req.params;
 		const { id_curso, id_usuario, progreso } = req.body;
 		const [usuario]: any = await db.query(
-			"SELECT * FROM Usuario WHERE id = ?",
+			"SELECT * FROM usuario WHERE id = ?",
 			[id_usuario],
 		);
 		if (usuario.length > 0) {
 			const [result]: any = await db.query(
-				"UPDATE Usuario_Progreso SET id_curso = ?, id_usuario = ?, progreso = ? WHERE id = ?",
+				"UPDATE usuario_Progreso SET id_curso = ?, id_usuario = ?, progreso = ? WHERE id = ?",
 				[id_curso, id_usuario, progreso, id],
 			);
 			res.json({ message: "Progreso actualizado" });
@@ -363,7 +363,7 @@ export const updateUsuarioProgreso = async (req: Request, res: Response) => {
 export const getCertificado = async (req: Request, res: Response) => {
 	try {
 		const [cliente_curso]: any = await db.query(
-			"SELECT * FROM Cliente_Curso WHERE id_cliente = ? AND id_curso = ? ",
+			"SELECT * FROM cliente_curso WHERE id_cliente = ? AND id_curso = ? ",
 			[
 				req.body.cliente_usuario[0].id_cliente,
 				req.body.usuario_progreso[0].id_curso,
@@ -375,7 +375,7 @@ export const getCertificado = async (req: Request, res: Response) => {
 		const fecha = new Date().toISOString().slice(0, 10);
 		console.log(cliente_curso);
 		const url = JSON.parse(cliente_curso[0].certificado);
-		const plantillaPdf = await fs.readFile(`${config.assetsPath}/${url.url}`);
+		const plantillaPdf = await fs.readFile(`${config.uploadsPath}/${url.url}`);
 		if (!plantillaPdf) {
 			return res
 				.status(400)
