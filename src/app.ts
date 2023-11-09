@@ -13,7 +13,11 @@ import config from "./config";
 const app = express();
 
 app.set("trust proxy", true);
-app.use(cors());
+app.use(
+	cors({
+		origin: "*",
+	}),
+);
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -27,7 +31,7 @@ app.use(function (err: any, req: any, res: any, next: any) {
 });
 
 const storage = multer.diskStorage({
-	destination: "./uploads",
+	destination: config.uploadsPath,
 	filename: async function (req, file, cb) {
 		if (!fs.existsSync("uploads")) {
 			fs.mkdirSync("uploads");

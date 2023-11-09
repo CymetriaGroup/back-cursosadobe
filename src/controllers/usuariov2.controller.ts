@@ -82,7 +82,7 @@ export const readUsuarioById = async (req: Request, res: Response) => {
 			[id],
 		);
 		const [progreso]: any = await db.query(
-			"SELECT * FROM usuario_Progreso WHERE id_usuario = ?",
+			"SELECT * FROM usuario_progreso WHERE id_usuario = ?",
 			[id],
 		);
 		const [cliente]: any = await db.query(
@@ -346,7 +346,7 @@ export const updateUsuarioProgreso = async (req: Request, res: Response) => {
 		);
 		if (usuario.length > 0) {
 			const [result]: any = await db.query(
-				"UPDATE usuario_Progreso SET id_curso = ?, id_usuario = ?, progreso = ? WHERE id = ?",
+				"UPDATE usuario_progreso SET id_curso = ?, id_usuario = ?, progreso = ? WHERE id = ?",
 				[id_curso, id_usuario, progreso, id],
 			);
 			res.json({ message: "Progreso actualizado" });
@@ -370,11 +370,16 @@ export const getCertificado = async (req: Request, res: Response) => {
 			],
 		);
 
-		console.log(req.body);
-
 		const fecha = new Date().toISOString().slice(0, 10);
 		console.log(cliente_curso);
-		const url = JSON.parse(cliente_curso[0].certificado);
+		logger(
+			`🚀 ~ file: usuariov2.controller.ts:377 ~ getCertificado ~ cliente_curso:${cliente_curso}`,
+		);
+		const url =
+			typeof cliente_curso[0].certificado === "string"
+				? JSON.parse(cliente_curso[0].certificado)
+				: cliente_curso[0].certificado;
+		logger(`url:::${config.uploadsPath}/${url.url}`);
 		const plantillaPdf = await fs.readFile(`${config.uploadsPath}/${url.url}`);
 		if (!plantillaPdf) {
 			return res
@@ -417,19 +422,26 @@ export const getCertificado = async (req: Request, res: Response) => {
 		}
 
 		async function drawCenteredText(page, text, y, size, color) {
-			const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-			const textWidth = font.widthOfTextAtSize(text, size);
-			const x = (pageWidth - textWidth) / 2;
+			try {
+				const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+				const textWidth = font.widthOfTextAtSize(text, size);
+				const x = (pageWidth - textWidth) / 2;
 
-			page.drawText(text, {
-				x: x,
-				y: y,
-				size: size,
-				color: color,
-				font: font,
-			});
+				page.drawText(text, {
+					x: x,
+					y: y,
+					size: size,
+					color: color,
+					font: font,
+				});
+			} catch (error) {
+				logger(
+					`🚀 ~ file: usuariov2.controller.ts:440 ~ drawCenteredText ~ error:${error}`,
+				);
+			}
 		}
 	} catch (error) {
+		logger(error);
 		console.log(error);
 	}
 };
