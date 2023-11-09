@@ -5,7 +5,7 @@ import * as jose from "jose";
 import config from "./config";
 import bcrypt from "bcryptjs";
 
-export const logger = (error: any) => {
+export const logger = (...args: any) => {
 	if (!fs.existsSync("logs.txt")) {
 		fs.writeFile("logs.txt", "", (err) => {
 			if (err) throw err;
@@ -17,7 +17,7 @@ export const logger = (error: any) => {
 	const timeNow = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
 	const dateTime = `${dateNow} ${timeNow}`;
 
-	const log = `[${dateTime}] ${error}\n`;
+	const log = `[${dateTime}] ${args}\n`;
 
 	fs.appendFile("logs.txt", log, (err) => {
 		if (err) throw err;
@@ -81,7 +81,9 @@ export const sendEmail = async (
 	type: "verification" | "token",
 ) => {
 	try {
-		const jwt = await generateToken(email);
+		const expiracion = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 3; // 3 dias
+
+		const jwt = await generateToken(email, expiracion);
 		const token = generateRandomCode();
 		const url = `${config.urlBakend}api/usuario-verify/${jwt}`;
 		let mailBuildData;
@@ -131,7 +133,7 @@ export const sendEmail = async (
 		return false;
 	}
 };
-export const generateToken = async (data: any) => {
+export const generateToken = async (data: any, expiracion: number) => {
 	const secret = new TextEncoder().encode(config.secretkey);
 
 	const alg = "HS256";
@@ -141,6 +143,7 @@ export const generateToken = async (data: any) => {
 		sub: data,
 		aud: "cursosadobe.com",
 		iat: Math.floor(Date.now() / 1000),
+		exp: expiracion,
 	};
 
 	const jwt = await new jose.SignJWT({

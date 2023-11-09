@@ -1,6 +1,19 @@
-import multer from 'multer';
-import { Router } from 'express';
-import fs from 'fs'
+import { logger, verifyToken } from "../tools";
 
-const router = Router();
+export const verifyJWT = async (req: any, res: any, next: any) => {
+	const token = req.headers["x-access-token"];
 
+	if (!token) {
+		logger("🚀 ~ file: tools.middleware.ts:7 ~ verifyJWT ~ token:", token);
+		return res.status(401).json({ message: "No token provided" });
+	}
+
+	try {
+		const payload = await verifyToken(token);
+		req.id = payload.sub;
+		next();
+	} catch (error) {
+		logger("🚀 ~ file: tools.middleware.ts:17 ~ verifyJWT ~ error:", error);
+		return res.status(401).json({ message: "Unauthorized" });
+	}
+};

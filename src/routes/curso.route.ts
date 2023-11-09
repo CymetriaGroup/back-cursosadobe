@@ -1,5 +1,5 @@
 import { Router } from "express";
-import * as cursoCtrl from "../controllers/cursov2.controller";
+import * as cursoCtrl from "../controllers/curso.controller";
 
 const router = Router();
 

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import * as clienteCtrl from "../controllers/clientev2.controller";
+import * as clienteCtrl from "../controllers/cliente.controller";
 
 const router = Router();
 
@@ -14,12 +14,12 @@ router.delete("/cliente/:id", clienteCtrl.deleteCliente);
 router.post("/curso-cliente", clienteCtrl.createClienteCurso);
 router.get("/curso-cliente/:codigo/:id", clienteCtrl.readClienteCurso);
 router.put(
-  "/curso-cliente/:id_cliente/:id_curso",
-  clienteCtrl.updateClienteCurso
+	"/curso-cliente/:id_cliente/:id_curso",
+	clienteCtrl.updateClienteCurso,
 );
 router.delete(
-  "/curso-cliente/:id_cliente/:id_curso",
-  clienteCtrl.deleteClienteCurso
+	"/curso-cliente/:id_cliente/:id_curso",
+	clienteCtrl.deleteClienteCurso,
 );
 
 router.post("/usuario-cliente", clienteCtrl.createClienteUsuario);

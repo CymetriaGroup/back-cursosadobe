@@ -226,7 +226,8 @@ export const verifyEmailUsuario = async (req: Request, res: Response) => {
 				usuario_progreso,
 				verificado: 1,
 			};
-			const token = await generateToken(user);
+			const expiracion = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7;
+			const token = await generateToken(user, expiracion);
 
 			res.redirect(`${config.urlFrontend}/verify/${token}`);
 		} else {

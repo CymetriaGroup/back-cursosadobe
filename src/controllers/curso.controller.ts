@@ -1,7 +1,7 @@
 import db from "../database";
 import { getDuracionVideo, logger } from "../tools";
 import { Request, Response } from "express";
-import { createCliente } from "./clientev2.controller";
+import { createCliente } from "./cliente.controller";
 
 // CREATE TABLE Curso (
 // 	id INT NOT NULL AUTO_INCREMENT,
