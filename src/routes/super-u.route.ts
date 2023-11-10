@@ -9,4 +9,6 @@ router.get("/super-us", verifyJWT, superUController.readSuperUsuarios);
 router.put("/super-u/:id", verifyJWT, superUController.updateSuperUsuario);
 router.delete("/super-u/:id", verifyJWT, superUController.deleteSuperUsuario);
 
+router.post("/login", superUController.loginSuperUsuario);
+
 export default router;

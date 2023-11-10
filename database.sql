@@ -61,5 +61,6 @@ CREATE TABLE IF NOT EXISTS super_usuario (
 	id INT NOT NULL AUTO_INCREMENT,
 	usuario VARCHAR(255) NOT NULL UNIQUE,
 	password VARCHAR(255) NOT NULL,
+	permisos JSON,
 	PRIMARY KEY (id)
-)
+);
