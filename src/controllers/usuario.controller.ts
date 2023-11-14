@@ -90,7 +90,7 @@ export const readUsuarioById = async (req: Request, res: Response) => {
       [id]
     );
     if (usuario.length > 0) {
-      res.json({ ...usuario[0], progreso: progreso[0], cliente: cliente[0] });
+      res.json({ ...usuario[0], progreso: progreso, cliente: cliente[0] });
     } else {
       res.status(404).json({ message: "Usuario no encontrado" });
     }
@@ -103,7 +103,7 @@ export const readUsuarioById = async (req: Request, res: Response) => {
 
 export const readUsuarios = async (req: Request, res: Response) => {
   try {
-    const [usuarios]: any = await db.query("SELECT * FROM Usuario");
+    const [usuarios]: any = await db.query("SELECT * FROM usuario");
     res.json(usuarios);
   } catch (error: any) {
     logger(error);

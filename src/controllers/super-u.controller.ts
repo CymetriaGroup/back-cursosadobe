@@ -66,7 +66,33 @@ export const readSuperUsuario = async (req: Request, res: Response) => {
 export const updateSuperUsuario = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { usuario, password } = req.body;
+    const { usuario, password, passwordActual } = req.body;
+
+    const [superUsuario]: any = await db.query(
+      "SELECT * FROM super_usuario WHERE id = ?",
+      [id]
+    );
+
+    if (!superUsuario) {
+      logger(
+        "🚀 ~ file: super-u.controller.ts:60 ~ readSuperUsuario ~ error:",
+        superUsuario
+      );
+      return res.status(404).json({ message: "Super Usuario no encontrado" });
+    }
+
+    const isPasswordValid = await compare(
+      passwordActual,
+      superUsuario[0].password
+    );
+
+    if (!isPasswordValid) {
+      logger(
+        "🚀 ~ file: super-u.controller.ts:121 ~ loginSuperUsuario ~ isPasswordValid:",
+        isPasswordValid
+      );
+      return res.status(401).json({ message: "Contraseña incorrecta" });
+    }
 
     const passwordEncrypted = await encrypt(password);
 
@@ -128,7 +154,10 @@ export const loginSuperUsuario = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Contraseña incorrecta" });
     }
     console.log(superUsuario[0].id);
-    const token = await generateToken({ id: superUsuario[0].id }, "24h");
+    const token = await generateToken(
+      { id: superUsuario[0].id, usuario },
+      "24h"
+    );
 
     res.json({ message: "Super Usuario logueado", token });
   } catch (error) {
