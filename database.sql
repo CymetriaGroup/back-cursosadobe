@@ -18,8 +18,9 @@ CREATE TABLE IF NOT EXISTS cliente (
 	codigo VARCHAR(255) NOT NULL UNIQUE,
 	nombre_path VARCHAR(255) NOT NULL UNIQUE,
 	url_imagen VARCHAR(255) NOT NULL,
+	url_banner VARCHAR(255) NOT NULL,
 	max_usuarios INT NOT NULL,
-	descripcion VARCHAR(255) NOT NULL,
+	descripcion TEXT NOT NULL,
 	PRIMARY KEY (id)
 );
 CREATE TABLE IF NOT EXISTS cliente_curso (

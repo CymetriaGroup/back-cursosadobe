@@ -38,6 +38,7 @@ export const createCliente = async (req: Request, res: Response) => {
 			url_imagen,
 			codigo,
 			descripcion,
+			url_banner,
 		} = req.body;
 
 		if (
@@ -46,7 +47,8 @@ export const createCliente = async (req: Request, res: Response) => {
 			!nombre_path ||
 			!max_usuarios ||
 			!codigo ||
-			!descripcion
+			!descripcion ||
+			!url_banner
 		) {
 			return res
 				.status(400)
@@ -67,7 +69,7 @@ export const createCliente = async (req: Request, res: Response) => {
 			return res.status(400).json({ message: "El cliente ya existe" });
 		} else {
 			const [result]: any = await db.query(
-				"INSERT INTO cliente (nombre, nit, codigo, url_imagen, nombre_path, max_usuarios, descripcion) VALUES (?, ?, ?, ?, ?, ?, ?)",
+				"INSERT INTO cliente (nombre, nit, codigo, url_imagen, nombre_path, max_usuarios, descripcion,url_banner) VALUES (?, ?, ?, ?, ?, ?, ?,?)",
 				[
 					nombre,
 					nit,
@@ -76,6 +78,7 @@ export const createCliente = async (req: Request, res: Response) => {
 					nombre_path,
 					max_usuarios,
 					descripcion,
+					url_banner,
 				],
 			);
 			res.json({ message: "Cliente creado", id: result.insertId });
@@ -223,6 +226,7 @@ export const updateCliente = async (req: Request, res: Response) => {
 			url_imagen,
 			codigo,
 			descripcion,
+			url_banner,
 		} = req.body;
 
 		if (
@@ -231,7 +235,8 @@ export const updateCliente = async (req: Request, res: Response) => {
 			!nombre_path ||
 			!max_usuarios ||
 			!codigo ||
-			!descripcion
+			!descripcion ||
+			!url_banner
 		) {
 			return res
 				.status(400)
@@ -249,7 +254,7 @@ export const updateCliente = async (req: Request, res: Response) => {
 
 		if (clientedb.length > 0) {
 			await db.query(
-				"UPDATE cliente SET nombre = ?, nit = ?, nombre_path = ?, max_usuarios = ?, url_imagen = ?, codigo = ?, descripcion = ? WHERE id = ?",
+				"UPDATE cliente SET nombre = ?, nit = ?, nombre_path = ?, max_usuarios = ?, url_imagen = ?, codigo = ?, descripcion = ?, url_banner = ? WHERE id = ?",
 				[
 					nombre,
 					nit,
@@ -258,6 +263,7 @@ export const updateCliente = async (req: Request, res: Response) => {
 					url_imagen,
 					codigo,
 					descripcion,
+					url_banner,
 					id,
 				],
 			);
