@@ -16,10 +16,15 @@ export const createSuperUsuario = async (req: Request, res: Response) => {
     const { usuario, password } = req.body;
 
     const passwordEncrypted = await encrypt(password);
-
+    const permisos = {
+      leer: true,
+      crear: false,
+      actualizar: false,
+      eliminar: false,
+    };
     const [newUser]: any = await db.query(
-      "INSERT INTO super_usuario (usuario, password) VALUES (?, ?)",
-      [usuario, passwordEncrypted]
+      "INSERT INTO super_usuario (usuario, password,permisos) VALUES (?, ?,?)",
+      [usuario, passwordEncrypted, JSON.stringify(permisos)]
     );
     res.json({ message: "Super Usuario creado", id: newUser.insertId });
   } catch (error) {
@@ -110,6 +115,44 @@ export const updateSuperUsuario = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error al actualizar Super Usuario" });
   }
 };
+export const updatePermisosSuperUsuario = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { id } = req.params;
+    const { permisos } = req.body;
+    if (!permisos) {
+      return res.status(500).send("falta la propiedad permisos");
+    }
+
+    const [superUsuario]: any = await db.query(
+      "SELECT * FROM super_usuario WHERE id = ?",
+      [id]
+    );
+
+    if (!superUsuario) {
+      logger(
+        "🚀 ~ file: super-u.controller.ts:60 ~ readSuperUsuario ~ error:",
+        superUsuario
+      );
+      return res.status(404).json({ message: "Super Usuario no encontrado" });
+    }
+
+    await db.query("UPDATE super_usuario SET permisos = ? WHERE id = ?", [
+      JSON.stringify(permisos),
+      id,
+    ]);
+
+    res.json({ message: "Super Usuario actualizado" });
+  } catch (error) {
+    logger(
+      "🚀 ~ file: super-u.controller.ts:79 ~ updateSuperUsuario ~ error:",
+      error
+    );
+    res.status(500).json({ message: "Error al actualizar Super Usuario" });
+  }
+};
 
 export const deleteSuperUsuario = async (req: Request, res: Response) => {
   try {
@@ -154,10 +197,7 @@ export const loginSuperUsuario = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Contraseña incorrecta" });
     }
     console.log(superUsuario[0].id);
-    const token = await generateToken(
-      { id: superUsuario[0].id, usuario },
-      "24h"
-    );
+    const token = await generateToken(superUsuario[0], "24h");
 
     res.json({ message: "Super Usuario logueado", token });
   } catch (error) {
