@@ -13,7 +13,7 @@ import config from "../config";
 
 export const createSuperUsuario = async (req: Request, res: Response) => {
   try {
-    const { usuario, password } = req.body;
+    const { email, usuario, password } = req.body;
 
     const passwordEncrypted = await encrypt(password);
     const permisos = {
@@ -23,8 +23,8 @@ export const createSuperUsuario = async (req: Request, res: Response) => {
       eliminar: false,
     };
     const [newUser]: any = await db.query(
-      "INSERT INTO super_usuario (usuario, password,permisos) VALUES (?, ?,?)",
-      [usuario, passwordEncrypted, JSON.stringify(permisos)]
+      "INSERT INTO super_usuario (email,usuario, password,permisos) VALUES (?, ?, ?,?)",
+      [email, usuario, passwordEncrypted, JSON.stringify(permisos)]
     );
     res.json({ message: "Super Usuario creado", id: newUser.insertId });
   } catch (error) {
@@ -71,7 +71,7 @@ export const readSuperUsuario = async (req: Request, res: Response) => {
 export const updateSuperUsuario = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { usuario, password, passwordActual } = req.body;
+    const { email, usuario, password, passwordActual } = req.body;
 
     const [superUsuario]: any = await db.query(
       "SELECT * FROM super_usuario WHERE id = ?",
@@ -102,8 +102,8 @@ export const updateSuperUsuario = async (req: Request, res: Response) => {
     const passwordEncrypted = await encrypt(password);
 
     await db.query(
-      "UPDATE super_usuario SET usuario = ?, password = ? WHERE id = ?",
-      [usuario, passwordEncrypted, id]
+      "UPDATE super_usuario SET email=?, usuario = ?, password = ? WHERE id = ?",
+      [email, usuario, passwordEncrypted, id]
     );
 
     res.json({ message: "Super Usuario actualizado" });
@@ -172,11 +172,11 @@ export const deleteSuperUsuario = async (req: Request, res: Response) => {
 
 export const loginSuperUsuario = async (req: Request, res: Response) => {
   try {
-    const { usuario, password } = req.body;
+    const { email, password } = req.body;
 
     const [superUsuario]: any = await db.query(
       "SELECT * FROM super_usuario WHERE usuario = ?",
-      [usuario]
+      [email]
     );
 
     if (!superUsuario) {
