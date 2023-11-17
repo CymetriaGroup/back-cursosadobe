@@ -78,11 +78,12 @@ function extractYouTubeId(url) {
 }
 export const sendEmail = async (
   email: string,
-  type: "verification" | "token"
+  type: "verification" | "forgot-admin" | "forgot-user"
 ) => {
   try {
     const jwt = await generateToken(email, "3d");
     const token = generateRandomCode();
+    const urlForgotAdmin = `${config.urlAdmin}/usuario-verify/${jwt}`;
     const url = `${config.urlBakend}api/usuario-verify/${jwt}`;
     let mailBuildData;
     if (type === "verification") {
@@ -93,12 +94,12 @@ export const sendEmail = async (
           .readFileSync(`${config.assetsPath}/emailVerification.html`, "utf8")
           .replaceAll("{URL}", url),
       };
-    } else if (type === "token") {
+    } else if (type === "forgot-admin") {
       mailBuildData = {
-        subject: "Token de acceso",
+        subject: "Recuperación de contraseña",
         htmlContent: fs
           .readFileSync(`${config.assetsPath}/emailToken.html`, "utf8")
-          .replaceAll("{TOKEN}", token),
+          .replaceAll("{URL}", urlForgotAdmin),
       };
     }
     const transporter = nodemailer.createTransport({

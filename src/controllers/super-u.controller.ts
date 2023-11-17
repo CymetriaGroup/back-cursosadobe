@@ -1,6 +1,6 @@
 import db from "../database";
 
-import { logger, encrypt, compare, generateToken } from "../tools";
+import { logger, encrypt, compare, generateToken, sendEmail } from "../tools";
 import { Request, Response } from "express";
 import config from "../config";
 
@@ -132,10 +132,6 @@ export const updatePermisosSuperUsuario = async (
     );
 
     if (!superUsuario) {
-      logger(
-        "🚀 ~ file: super-u.controller.ts:60 ~ readSuperUsuario ~ error:",
-        superUsuario
-      );
       return res.status(404).json({ message: "Super Usuario no encontrado" });
     }
 
@@ -173,9 +169,8 @@ export const deleteSuperUsuario = async (req: Request, res: Response) => {
 export const loginSuperUsuario = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
-
     const [superUsuario]: any = await db.query(
-      "SELECT * FROM super_usuario WHERE usuario = ?",
+      "SELECT * FROM super_usuario WHERE email = ?",
       [email]
     );
 
@@ -202,9 +197,37 @@ export const loginSuperUsuario = async (req: Request, res: Response) => {
     res.json({ message: "Super Usuario logueado", token });
   } catch (error) {
     logger(
-      "🚀 ~ file: super-u.controller.ts:129 ~ loginSuperUsuario ~ error:",
+      "🚀 ~ file: super-u.controller.ts:201 ~ loginSuperUsuario ~ error:",
       error
     );
     res.status(500).json({ message: "Error al loguear Super Usuario" });
+  }
+};
+export const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    console.log(email);
+    const [superUsuario]: any = await db.query(
+      "SELECT * FROM super_usuario WHERE usuario = ?",
+      [email]
+    );
+    if (!superUsuario) {
+      logger(
+        "🚀 ~ file: super-u.controller.ts:114 ~ loginSuperUsuario ~ superUsuario:",
+        superUsuario
+      );
+      return res.status(404).json({ message: "Super Usuario no encontrado" });
+    }
+
+    const sender = await sendEmail(email, "forgot-admin");
+
+    if (!sender) {
+      return res.status(400).json({ message: "Error al enviar el correo" });
+    }
+    res.json({ message: "Correo enviado" });
+  } catch (error) {
+    logger(error);
+
+    return res.status(500).json({ message: error });
   }
 };
