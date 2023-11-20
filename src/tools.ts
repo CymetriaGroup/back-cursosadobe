@@ -83,7 +83,7 @@ export const sendEmail = async (
   try {
     const jwt = await generateToken(email, "3d");
     const token = generateRandomCode();
-    const urlForgotAdmin = `${config.urlAdmin}/usuario-verify/${jwt}`;
+    const urlForgotAdmin = `${config.urlAdmin}usuario-verify/${jwt}`;
     const url = `${config.urlBakend}api/usuario-verify/${jwt}`;
     let mailBuildData;
     if (type === "verification") {

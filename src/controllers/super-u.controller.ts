@@ -174,12 +174,12 @@ export const loginSuperUsuario = async (req: Request, res: Response) => {
       [email]
     );
 
-    if (!superUsuario) {
+    if (!superUsuario[0]) {
       logger(
         "🚀 ~ file: super-u.controller.ts:114 ~ loginSuperUsuario ~ superUsuario:",
         superUsuario
       );
-      return res.status(404).json({ message: "Super Usuario no encontrado" });
+      return res.status(404).send("Administrador no encontrado");
     }
 
     const isPasswordValid = await compare(password, superUsuario[0].password);
@@ -189,7 +189,7 @@ export const loginSuperUsuario = async (req: Request, res: Response) => {
         "🚀 ~ file: super-u.controller.ts:121 ~ loginSuperUsuario ~ isPasswordValid:",
         isPasswordValid
       );
-      return res.status(401).json({ message: "Contraseña incorrecta" });
+      return res.status(401).send("Contraseña incorrecta");
     }
     console.log(superUsuario[0].id);
     const token = await generateToken(superUsuario[0], "24h");
@@ -229,5 +229,38 @@ export const forgotPassword = async (req: Request, res: Response) => {
     logger(error);
 
     return res.status(500).json({ message: error });
+  }
+};
+export const updatePassword = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+
+    const [superUsuario]: any = await db.query(
+      "SELECT * FROM super_usuario WHERE email = ?",
+      [email]
+    );
+
+    if (!superUsuario) {
+      logger(
+        "🚀 ~ file: super-u.controller.ts:60 ~ readSuperUsuario ~ error:",
+        superUsuario
+      );
+      return res.status(404).json({ message: "Super Usuario no encontrado" });
+    }
+
+    const passwordEncrypted = await encrypt(password);
+
+    await db.query("UPDATE super_usuario SET password = ? WHERE email = ?", [
+      passwordEncrypted,
+      email,
+    ]);
+
+    res.json({ message: "Super Usuario actualizado" });
+  } catch (error) {
+    logger(
+      "🚀 ~ file: super-u.controller.ts:79 ~ updateSuperUsuario ~ error:",
+      error
+    );
+    res.status(500).json({ message: "Error al actualizar Super Usuario" });
   }
 };
