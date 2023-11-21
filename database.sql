@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS usuario (
 	url_imagen VARCHAR(255),
 	telefono VARCHAR(255),
 	empresa VARCHAR(255),
-	cargo VARCHAR(255) NOT NULL,
+	cargo VARCHAR(255),
 	verificado TINYINT(1) NOT NULL DEFAULT 0,
 	PRIMARY KEY (id)
 );

@@ -115,18 +115,9 @@ export const readUsuarios = async (req: Request, res: Response) => {
 export const updateUsuario = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    let { nombre, email, password, url_imagen, telefono, empresa, cargo } =
-      req.body;
+    let { nombre, email, url_imagen, telefono, empresa, cargo } = req.body;
 
-    if (
-      !nombre ||
-      !email ||
-      !password ||
-      !url_imagen ||
-      !telefono ||
-      !empresa ||
-      !cargo
-    ) {
+    if (!nombre || !email || !url_imagen || !telefono || !empresa || !cargo) {
       return res.status(400).json({ message: "Faltan campos" });
     }
 
@@ -145,19 +136,9 @@ export const updateUsuario = async (req: Request, res: Response) => {
     }
 
     if (usuario.length > 0) {
-      const passwordEncrypted = await encrypt(`${password}`);
       await db.query(
-        "UPDATE usuario SET nombre = ?, email = ?, password = ?, url_imagen = ?, telefono = ?, empresa = ?, cargo = ? WHERE id = ?",
-        [
-          nombre,
-          email,
-          passwordEncrypted,
-          url_imagen,
-          telefono,
-          empresa,
-          cargo,
-          id,
-        ]
+        "UPDATE usuario SET nombre = ?, email = ?, url_imagen = ?, telefono = ?, empresa = ?, cargo = ? WHERE id = ?",
+        [nombre, email, url_imagen, telefono, empresa, cargo, id]
       );
       res.json({ message: "Usuario actualizado" });
     } else {
