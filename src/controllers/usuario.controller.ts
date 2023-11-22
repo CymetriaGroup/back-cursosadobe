@@ -245,15 +245,22 @@ export const loginUsuario = async (req: Request, res: Response) => {
         [usuario[0].id]
       );
 
-      const [usuario_progreso] = await db.query(
+      const [usuario_progreso]: any = await db.query(
         "SELECT * FROM usuario_progreso WHERE id_usuario = ?",
         [usuario[0].id]
       );
+      console.log(usuario_progreso);
+      const id_cursos = usuario_progreso
+        .map((up) => ` id = ${up.id_curso} `)
+        .join(" OR");
+      console.log(id_cursos);
+      const [cursos] = await db.query(`SELECT * FROM curso WHERE ${id_cursos}`);
 
       const user = {
         ...usuario[0],
         cliente_usuario,
         usuario_progreso,
+        cursos,
       };
 
       res.json(user);
@@ -261,7 +268,10 @@ export const loginUsuario = async (req: Request, res: Response) => {
       res.status(404).json({ message: "Usuario no encontrado" });
     }
   } catch (error: any) {
-    logger(error);
+    logger(
+      "🚀 ~ file: usuario.controller.ts:270 ~ loginUsuario ~ error:",
+      error
+    );
     return res.status(500).json({ message: error.message });
   }
 };
@@ -361,7 +371,12 @@ export const getCertificado = async (req: Request, res: Response) => {
         ? JSON.parse(cliente_curso[0].certificado)
         : cliente_curso[0].certificado;
     logger(`url:::${config.uploadsPath}/${url.url}`);
-    const plantillaPdf = await fs.readFile(`${config.uploadsPath}/${url.url}`);
+    let plantillaPdf;
+    if (url.url === undefined) {
+      plantillaPdf = await fs.readFile(`${config.uploadsPath}/plantilla.pdf`);
+    } else {
+      plantillaPdf = await fs.readFile(`${config.uploadsPath}/${url.url}`);
+    }
     if (!plantillaPdf) {
       return res
         .status(400)

@@ -64,10 +64,13 @@ export const formatearFechaEnEspanol = (fechaMySQL) => {
   return fechaFormateada;
 };
 export const getDuracionVideo = async (url: string) => {
-  const video = await Youtube.getVideo(
-    `https://youtu.be/${extractYouTubeId(url)}`
-  );
-  return video.durationFormatted;
+  const id = extractYouTubeId(url);
+  if (id == null) {
+    return null;
+  } else {
+    const video = await Youtube.getVideo(`https://youtu.be/${id}`);
+    return video.durationFormatted;
+  }
 };
 function extractYouTubeId(url) {
   const regex =
