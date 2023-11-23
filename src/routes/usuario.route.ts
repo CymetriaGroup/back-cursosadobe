@@ -10,8 +10,10 @@ router.put("/usuario/:id", usuarioCtrl.updateUsuario);
 router.delete("/usuario/:id", usuarioCtrl.deleteUsuario);
 
 router.post("/usuario-login", usuarioCtrl.loginUsuario);
+router.post("/usuario-forgot", usuarioCtrl.sendForgotEmail);
 router.post("/sendMailVerify", usuarioCtrl.sendMailVerifyUsuario);
 router.get("/usuario-verify/:token", usuarioCtrl.verifyEmailUsuario);
+router.post("/usuario-resetpassword", usuarioCtrl.resetPassword);
 
 router.post("/usuario-progreso", usuarioCtrl.createUsuarioProgreso);
 router.put("/usuario-progreso/:id", usuarioCtrl.updateUsuarioProgreso);

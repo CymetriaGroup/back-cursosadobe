@@ -87,6 +87,7 @@ export const sendEmail = async (
     const jwt = await generateToken(email, "3d");
     const token = generateRandomCode();
     const urlForgotAdmin = `${config.urlAdmin}usuario-verify/${jwt}`;
+    const urlForgotUser = `${config.urlFrontend}usuario-verify/${jwt}`;
     const url = `${config.urlBakend}api/usuario-verify/${jwt}`;
     let mailBuildData;
     if (type === "verification") {
@@ -103,6 +104,13 @@ export const sendEmail = async (
         htmlContent: fs
           .readFileSync(`${config.assetsPath}/emailToken.html`, "utf8")
           .replaceAll("{URL}", urlForgotAdmin),
+      };
+    } else if (type === "forgot-user") {
+      mailBuildData = {
+        subject: "Recuperación de contraseña",
+        htmlContent: fs
+          .readFileSync(`${config.assetsPath}/emailToken.html`, "utf8")
+          .replaceAll("{URL}", urlForgotUser),
       };
     }
     const transporter = nodemailer.createTransport({
@@ -132,7 +140,7 @@ export const sendEmail = async (
   } catch (error: any) {
     console.log(error);
     logger(error);
-    return false;
+    throw new Error(error);
   }
 };
 export const generateToken = async (data: any, expiracion: string) => {

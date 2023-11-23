@@ -441,3 +441,63 @@ export const getCertificado = async (req: Request, res: Response) => {
     console.log(error);
   }
 };
+
+export const sendForgotEmail = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      res.status(404).send("Falta el campo email");
+    }
+
+    const [usuario]: any = await db.query(
+      "SELECT * FROM usuario WHERE email = ?",
+      [email]
+    );
+
+    if (usuario.length == 0) {
+      res.status(404).send("Usuario con ese correo no existe");
+    }
+    const mail = await sendEmail(email, "forgot-user");
+
+    res.status(200).send(mail);
+  } catch (error) {
+    logger(
+      "🚀 ~ file: usuario.controller.ts:465 ~ sendForgotEmail ~ error:",
+      error
+    );
+    res.status(500).send(error);
+  }
+};
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email) {
+      res.status(404).send("Falta el campo email");
+    }
+
+    const [usuario]: any = await db.query(
+      "SELECT * FROM usuario WHERE email = ?",
+      [email]
+    );
+
+    if (usuario.length == 0) {
+      res.status(404).send("Usuario con ese correo no existe");
+    }
+
+    const passwordEncrypted = await encrypt(`${password}`);
+
+    await db.query("UPDATE usuario SET password = ? WHERE email = ?", [
+      passwordEncrypted,
+      email,
+    ]);
+    res.status(200).send();
+  } catch (error) {
+    logger(
+      "🚀 ~ file: usuario.controller.ts:465 ~ sendForgotEmail ~ error:",
+      error
+    );
+    res.status(500).send(error);
+  }
+};
