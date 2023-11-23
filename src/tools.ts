@@ -140,7 +140,6 @@ export const sendEmail = async (
   } catch (error: any) {
     console.log(error);
     logger(error);
-    throw new Error(error);
   }
 };
 export const generateToken = async (data: any, expiracion: string) => {

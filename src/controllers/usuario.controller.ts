@@ -419,7 +419,7 @@ export const sendForgotEmail = async (req: Request, res: Response) => {
     const { email } = req.body;
 
     if (!email) {
-      res.status(404).send("Falta el campo email");
+      return res.status(404).send("Falta el campo email");
     }
 
     const [usuario]: any = await db.query(
@@ -428,7 +428,7 @@ export const sendForgotEmail = async (req: Request, res: Response) => {
     );
 
     if (usuario.length == 0) {
-      res.status(404).send("Usuario con ese correo no existe");
+      return res.status(404).send("Usuario con ese correo no existe");
     }
     const mail = await sendEmail(email, "forgot-user");
 
@@ -446,7 +446,7 @@ export const resetPassword = async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     if (!email) {
-      res.status(404).send("Falta el campo email");
+      return res.status(404).send("Falta el campo email");
     }
 
     const [usuario]: any = await db.query(
@@ -455,7 +455,7 @@ export const resetPassword = async (req: Request, res: Response) => {
     );
 
     if (usuario.length == 0) {
-      res.status(404).send("Usuario con ese correo no existe");
+      return res.status(404).send("Usuario con ese correo no existe");
     }
 
     const passwordEncrypted = await encrypt(`${password}`);
