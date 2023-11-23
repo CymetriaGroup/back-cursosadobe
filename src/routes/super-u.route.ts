@@ -6,7 +6,7 @@ const router = Router();
 router.post("/superu-login", superUController.loginSuperUsuario);
 router.post("/superu-forgot", superUController.forgotPassword);
 router.post("/superu-password", superUController.updatePassword);
-router.post("/super-u", verifyJWT, superUController.createSuperUsuario);
+router.post("/super-u", superUController.createSuperUsuario);
 router.get("/super-u/:id", verifyJWT, superUController.readSuperUsuario);
 router.get("/super-us", verifyJWT, superUController.readSuperUsuarios);
 router.put(

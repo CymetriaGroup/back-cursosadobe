@@ -353,12 +353,10 @@ export const updateUsuarioProgreso = async (req: Request, res: Response) => {
 
 export const getCertificado = async (req: Request, res: Response) => {
   try {
+    const { id_cliente, id_curso } = req.body;
     const [cliente_curso]: any = await db.query(
       "SELECT * FROM cliente_curso WHERE id_cliente = ? AND id_curso = ? ",
-      [
-        req.body.cliente_usuario[0].id_cliente,
-        req.body.usuario_progreso[0].id_curso,
-      ]
+      [id_cliente, id_curso]
     );
 
     const fecha = new Date().toISOString().slice(0, 10);

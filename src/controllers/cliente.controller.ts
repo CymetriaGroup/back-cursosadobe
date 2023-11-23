@@ -40,15 +40,13 @@ export const createCliente = async (req: Request, res: Response) => {
       descripcion,
       url_banner,
     } = req.body;
-
     if (
       !nombre ||
       !nit ||
       !nombre_path ||
       !max_usuarios ||
       !codigo ||
-      !descripcion ||
-      !url_banner
+      !descripcion
     ) {
       return res
         .status(400)
@@ -58,6 +56,9 @@ export const createCliente = async (req: Request, res: Response) => {
       codigo = generateRandomCode();
     } else {
       codigo = codigo.toUpperCase();
+    }
+    if (!url_banner) {
+      url_banner = "https://cursosadobe.com/assets/pagina.png";
     }
 
     const [clientedb]: any = await db.query(
@@ -238,12 +239,14 @@ export const updateCliente = async (req: Request, res: Response) => {
       !nombre_path ||
       !max_usuarios ||
       !codigo ||
-      !descripcion ||
-      !url_banner
+      !descripcion
     ) {
       return res
         .status(400)
         .json({ message: "Todos los campos son obligatorios" });
+    }
+    if (!url_banner) {
+      url_banner = "https://cursosadobe.com/assets/pagina.png";
     }
     codigo = codigo.toUpperCase();
 
