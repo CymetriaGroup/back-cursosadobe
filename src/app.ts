@@ -12,7 +12,7 @@ import fs from "fs";
 import path from "path";
 import config from "./config";
 const app = express();
-
+app.set("content-type", "application/json; charset=utf-8");
 app.set("trust proxy", true);
 app.use(
   cors({

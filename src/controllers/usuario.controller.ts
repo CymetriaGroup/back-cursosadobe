@@ -13,33 +13,6 @@ import {
 import config from "../config";
 import fs from "fs/promises";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
-// CREATE TABLE Usuario (
-// 	id INT NOT NULL AUTO_INCREMENT,
-// 	nombre VARCHAR(255) NOT NULL,
-// 	email VARCHAR(255) NOT NULL UNIQUE,
-// 	password VARCHAR(255) NOT NULL,
-// 	url_imagen VARCHAR(255),
-// 	telefono VARCHAR(255),
-// 	empresa VARCHAR(255),
-// 	cargo VARCHAR(255) NOT NULL,
-// 	verificado TINYINT(1) NOT NULL,
-// 	PRIMARY KEY (id)
-// );
-
-// CREATE TABLE Usuario_Progreso (
-// 	id INT NOT NULL AUTO_INCREMENT,
-// 	id_curso INT NOT NULL,
-// 	id_usuario INT NOT NULL,
-// 	progreso JSON NOT NULL,
-// 	PRIMARY KEY (id)
-// );
-
-// CREATE TABLE Cliente_Usuario (
-// 	id INT NOT NULL AUTO_INCREMENT,
-// 	id_cliente INT NOT NULL,
-// 	id_usuario INT NOT NULL,
-// 	PRIMARY KEY (id)
-// );
 
 export const createUsuario = async (req: Request, res: Response) => {
   const { nombre, email, password, telefono, empresa, cargo } = req.body;
@@ -237,6 +210,7 @@ export const loginUsuario = async (req: Request, res: Response) => {
       }
 
       if (!usuario[0].verificado) {
+        res.charset = "utf-8";
         return res.status(400).json({ message: "Usuario no verificado" });
       }
 
@@ -353,7 +327,7 @@ export const updateUsuarioProgreso = async (req: Request, res: Response) => {
 
 export const getCertificado = async (req: Request, res: Response) => {
   try {
-    const { id_cliente, id_curso } = req.body;
+    const { id_cliente, id_curso, nombre } = req.body;
     const [cliente_curso]: any = await db.query(
       "SELECT * FROM cliente_curso WHERE id_cliente = ? AND id_curso = ? ",
       [id_cliente, id_curso]
@@ -387,7 +361,7 @@ export const getCertificado = async (req: Request, res: Response) => {
     const textoFecha = `Emitido en Bogotá D.C. el ${formatearFechaEnEspanol(
       fecha
     )}.`;
-    drawCenteredText(firstPage, req.body.nombre, 330, 15, rgb(0, 0, 0));
+    drawCenteredText(firstPage, nombre, 330, 15, rgb(0, 0, 0));
     drawCenteredText(
       firstPage,
       url.nombre,
