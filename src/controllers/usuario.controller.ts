@@ -90,7 +90,7 @@ export const updateUsuario = async (req: Request, res: Response) => {
     const { id } = req.params;
     let { nombre, email, url_imagen, telefono, empresa, cargo } = req.body;
 
-    if (!nombre || !email || !url_imagen || !telefono || !empresa || !cargo) {
+    if (!nombre || !email) {
       return res.status(400).json({ message: "Faltan campos" });
     }
 
@@ -98,6 +98,19 @@ export const updateUsuario = async (req: Request, res: Response) => {
       "SELECT * FROM usuario WHERE id = ?",
       [id]
     );
+
+    if (!url_imagen) {
+      url_imagen = usuario[0].url_imagen;
+    }
+    if (!telefono) {
+      telefono = usuario[0].telefono;
+    }
+    if (!empresa) {
+      empresa = usuario[0].empresa;
+    }
+    if (!cargo) {
+      cargo = usuario[0].cargo;
+    }
 
     if (usuario[0].nombre !== nombre && url_imagen === usuario[0].url_imagen) {
       const colors = generateColors();
@@ -263,7 +276,7 @@ export const sendMailVerifyUsuario = async (req: Request, res: Response) => {
       const sender = await sendEmail(email, "verification");
 
       if (!sender) {
-        return res.status(400).json({ message: "Error al enviar el correo" });
+        return res.status(400).json({ message: "Correo invalido: " + email });
       }
 
       res.json({ message: "Correo enviado" });
