@@ -41,12 +41,14 @@ export interface Curso {
   nombre_certificado: string;
 }
 export interface Modulo {
-  lecciones: Leccion[];
+  id?: number;
   nombre: string;
+  lecciones: Leccion[];
 }
 export interface Leccion {
   nombre: string;
   descripcion: string;
-  url_video: string | null;
-  posicion: number;
+  url_video: string;
+  duracion?: string;
+  id?: number;
 }

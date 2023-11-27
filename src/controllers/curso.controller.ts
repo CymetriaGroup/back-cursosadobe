@@ -176,11 +176,15 @@ export const updateCurso = async (req: Request, res: Response) => {
 
     for (const modulo of modulos) {
       for (let i = 0; i < modulo.lecciones.length; i++) {
-        const duracion = await getDuracionVideo(modulo.lecciones[i].url_video);
-        modulo.lecciones[i] = {
-          ...modulo.lecciones[i],
-          duracion,
-        };
+        if (!modulo.lecciones[i].duracion) {
+          const duracion = await getDuracionVideo(
+            modulo.lecciones[i].url_video
+          );
+          modulo.lecciones[i] = {
+            ...modulo.lecciones[i],
+            duracion,
+          };
+        }
       }
     }
     console.log(

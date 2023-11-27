@@ -4,6 +4,7 @@ import nodemailer from "nodemailer";
 import * as jose from "jose";
 import config from "./config";
 import bcrypt from "bcryptjs";
+import { Modulo } from "./models";
 
 export const logger = (...args: any) => {
   if (!fs.existsSync("logs.txt")) {
