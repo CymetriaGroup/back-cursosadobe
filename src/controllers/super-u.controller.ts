@@ -208,15 +208,15 @@ export const forgotPassword = async (req: Request, res: Response) => {
     const { email } = req.body;
     console.log(email);
     const [superUsuario]: any = await db.query(
-      "SELECT * FROM super_usuario WHERE usuario = ?",
+      "SELECT * FROM super_usuario WHERE email = ?",
       [email]
     );
-    if (!superUsuario) {
+    if (superUsuario.length == 0) {
       logger(
         "🚀 ~ file: super-u.controller.ts:114 ~ loginSuperUsuario ~ superUsuario:",
         superUsuario
       );
-      return res.status(404).json({ message: "Super Usuario no encontrado" });
+      return res.status(404).json({ message: "Correo no encontrado" });
     }
 
     const sender = await sendEmail(email, "forgot-admin");
