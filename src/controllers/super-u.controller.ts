@@ -71,12 +71,16 @@ export const readSuperUsuario = async (req: Request, res: Response) => {
 export const updateSuperUsuario = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { email, usuario, password, passwordActual } = req.body;
+    let { email, usuario, password, passwordActual } = req.body;
 
+    
     const [superUsuario]: any = await db.query(
       "SELECT * FROM super_usuario WHERE id = ?",
       [id]
-    );
+      );
+    if (!email) {
+    email = superUsuario[0].email;
+  }
 
     if (!superUsuario) {
       logger(
@@ -96,7 +100,7 @@ export const updateSuperUsuario = async (req: Request, res: Response) => {
         "🚀 ~ file: super-u.controller.ts:121 ~ loginSuperUsuario ~ isPasswordValid:",
         isPasswordValid
       );
-      return res.status(401).json({ message: "Contraseña incorrecta" });
+      return res.status(401).send( "Contraseña incorrecta" );
     }
 
     const passwordEncrypted = await encrypt(password);
