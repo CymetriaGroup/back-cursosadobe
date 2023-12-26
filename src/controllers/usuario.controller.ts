@@ -314,23 +314,41 @@ export const createUsuarioProgreso = async (req: Request, res: Response) => {
   }
 };
 
-export const updateUsuarioProgreso = async (req: Request, res: Response) => {
+export const readUsuarioProgreso = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-    const { id_curso, id_usuario, progreso } = req.body;
+    const { id_usuario, id_curso } = req.body;
+    console.log(req.body);
     const [usuario]: any = await db.query(
       "SELECT * FROM usuario WHERE id = ?",
       [id_usuario]
     );
     if (usuario.length > 0) {
-      const [result]: any = await db.query(
-        "UPDATE usuario_progreso SET id_curso = ?, id_usuario = ?, progreso = ? WHERE id = ?",
-        [id_curso, id_usuario, progreso, id]
+      const [progreso]: any = await db.query(
+        "SELECT * FROM usuario_progreso WHERE id_usuario = ? AND id_curso = ?",
+        [id_usuario, id_curso]
       );
-      res.json({ message: "Progreso actualizado" });
+      console.log("progreso: ", progreso);
+      res.json(progreso[0]);
     } else {
       res.status(404).json({ message: "Usuario no encontrado" });
     }
+  } catch (error: any) {
+    logger(error);
+
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateUsuarioProgreso = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { progreso } = req.body;
+    console.log(progreso);
+    const [result]: any = await db.query(
+      "UPDATE usuario_progreso SET progreso = ? WHERE id = ?",
+      [JSON.stringify(progreso), id]
+    );
+    res.json({ message: "Progreso actualizado" });
   } catch (error: any) {
     logger(error);
 

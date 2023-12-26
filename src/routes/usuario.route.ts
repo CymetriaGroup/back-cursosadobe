@@ -16,6 +16,7 @@ router.get("/usuario-verify/:token", usuarioCtrl.verifyEmailUsuario);
 router.post("/usuario-resetpassword", usuarioCtrl.resetPassword);
 
 router.post("/usuario-progreso", usuarioCtrl.createUsuarioProgreso);
+router.post("/get-usuario-progreso", usuarioCtrl.readUsuarioProgreso);
 router.put("/usuario-progreso/:id", usuarioCtrl.updateUsuarioProgreso);
 
 router.post("/certificado", usuarioCtrl.getCertificado);
