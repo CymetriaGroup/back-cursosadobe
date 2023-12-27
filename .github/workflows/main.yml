@@ -36,7 +36,10 @@ jobs:
           username: ${{ secrets.SFTP_USERNAME }}
           password: ${{ secrets.SFTP_PASSWORD }}
           port: 22
-          script:
-                cd public_html/api.cursosadobe.com && /opt/cpanel/ea-nodejs**/bin/npm install &&/opt/cpanel/ea-nodejs**/bin/node ./node_modules/typescript/bin/tsc && touch /home/cursosadobe/public_html/api.cursosadobe.com/dist/tmp/restart.txt
+          script: |
+                cd public_html/api.cursosadobe.com
+                /opt/cpanel/ea-nodejs**/bin/npm install 
+                /opt/cpanel/ea-nodejs**/bin/node ./node_modules/typescript/bin/tsc
+                touch /home/cursosadobe/public_html/api.cursosadobe.com/dist/tmp/restart.txt
 
           
