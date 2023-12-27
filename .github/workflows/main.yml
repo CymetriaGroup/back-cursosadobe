@@ -25,7 +25,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local_path: ./*
+          local_path: ./src*
           remote_path: public_html/api.cursosadobe.com
 
       # Conexión SSH para ejecutar npm install en el servidor remoto 
@@ -40,6 +40,6 @@ jobs:
                 cd public_html/api.cursosadobe.com
                 /opt/cpanel/ea-nodejs**/bin/npm install
                 /opt/cpanel/ea-nodejs**/bin/node ./node_modules/typescript/bin/tsc
-                touch /home/networking/public_html/api.cursosadobe.com/dist/tmp/restart.txt
+                touch /home/cursosadobe/public_html/api.cursosadobe.com/dist/tmp/restart.txt
 
           
