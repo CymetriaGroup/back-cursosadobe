@@ -22,9 +22,9 @@ jobs:
       - name: Deploy files
         uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
+          server: ${{ secrets.SFTP_SERVER }}
+          username: ${{ secrets.SFTP_USERNAME }}
+          password: ${{ secrets.SFTP_PASSWORD }}
           local_path: ./src/*
           remote_path: public_html/api.cursosadobe.com
 
@@ -32,9 +32,9 @@ jobs:
       - name: SSH into remote server
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
+          host: ${{ secrets.SFTP_SERVER }}
+          username: ${{ secrets.SFTP_USERNAME }}
+          password: ${{ secrets.SFTP_PASSWORD }}
           port: 22
           script: |
                 cd public_html/api.cursosadobe.com
