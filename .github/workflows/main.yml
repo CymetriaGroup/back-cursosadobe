@@ -38,7 +38,9 @@ jobs:
           port: 22
           script: |
                 cd public_html/api.cursosadobe.com
+                ls
                 /opt/cpanel/ea-nodejs**/bin/npm install
+                ls
                 /opt/cpanel/ea-nodejs**/bin/node ./node_modules/typescript/bin/tsc
                 touch /home/cursosadobe/public_html/api.cursosadobe.com/dist/tmp/restart.txt
 
