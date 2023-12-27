@@ -1,0 +1,45 @@
+name: Publish Website to Cpanel
+on:
+  push:
+    branches:
+      - deploy
+
+jobs:
+  deploy_job:
+    runs-on: ubuntu-latest
+    name: deploy
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16 # Puedes ajustar la versión de Node.js según tus necesidades
+
+      # Paso para desplegar el archivo
+      - name: Deploy files
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local_path: ./*
+          remote_path: public_html/api.cursosadobe.com
+
+      # Conexión SSH para ejecutar npm install en el servidor remoto 
+      - name: SSH into remote server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: 22
+          script: |
+                cd public_html/api.cursosadobe.com
+                /opt/cpanel/ea-nodejs**/bin/npm install
+                /opt/cpanel/ea-nodejs**/bin/node ./node_modules/typescript/bin/tsc
+                touch /home/networking/public_html/api.cursosadobe.com/dist/tmp/restart.txt
+
+          
