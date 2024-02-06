@@ -9,6 +9,7 @@ import {
   verifyToken,
   compare,
   formatearFechaEnEspanol,
+  capitalizarIniciales,
 } from "../tools";
 import config from "../config";
 import fs from "fs/promises";
@@ -392,11 +393,17 @@ export const getCertificado = async (req: Request, res: Response) => {
     const textoFecha = `Emitido en Bogotá D.C. el ${formatearFechaEnEspanol(
       fecha
     )}.`;
-    drawCenteredText(firstPage, nombre, 330, 15, rgb(0, 0, 0));
+    drawCenteredText(
+      firstPage,
+      capitalizarIniciales(nombre),
+      330,
+      26,
+      rgb(81 / 255, 83 / 255, 97 / 255)
+    );
     drawCenteredText(
       firstPage,
       url.nombre,
-      240,
+      260,
       30,
       rgb(81 / 255, 83 / 255, 97 / 255)
     );

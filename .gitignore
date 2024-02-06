@@ -3,3 +3,4 @@ uploads
 logs.txt
 *.zip
 .DS_Store
+dist

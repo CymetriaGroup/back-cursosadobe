@@ -297,8 +297,8 @@ const getCertificado = async (req, res) => {
         const firstPage = pages[0];
         const pageWidth = firstPage.getWidth();
         const textoFecha = `Emitido en Bogotá D.C. el ${(0, tools_1.formatearFechaEnEspanol)(fecha)}.`;
-        drawCenteredText(firstPage, nombre, 330, 15, (0, pdf_lib_1.rgb)(0, 0, 0));
-        drawCenteredText(firstPage, url.nombre, 240, 30, (0, pdf_lib_1.rgb)(81 / 255, 83 / 255, 97 / 255));
+        drawCenteredText(firstPage, (0, tools_1.capitalizarIniciales)(nombre), 330, 26, (0, pdf_lib_1.rgb)(81 / 255, 83 / 255, 97 / 255));
+        drawCenteredText(firstPage, url.nombre, 260, 30, (0, pdf_lib_1.rgb)(81 / 255, 83 / 255, 97 / 255));
         drawCenteredText(firstPage, textoFecha, 80, 10, (0, pdf_lib_1.rgb)(81 / 255, 83 / 255, 97 / 255));
         const pdfBytes = await pdfDoc.save();
         res.setHeader("Content-Disposition", "attachment; filename=certificado.pdf");

@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.compare = exports.encrypt = exports.generateColors = exports.verifyToken = exports.generateToken = exports.sendEmail = exports.getDuracionVideo = exports.formatearFechaEnEspanol = exports.generateRandomCode = exports.logger = void 0;
+exports.capitalizarIniciales = exports.compare = exports.encrypt = exports.generateColors = exports.verifyToken = exports.generateToken = exports.sendEmail = exports.getDuracionVideo = exports.formatearFechaEnEspanol = exports.generateRandomCode = exports.logger = void 0;
 const fs_1 = __importDefault(require("fs"));
 const youtube_sr_1 = __importDefault(require("youtube-sr"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
@@ -217,3 +217,13 @@ async function compare(data, data2) {
     return await bcryptjs_1.default.compare(data, data2);
 }
 exports.compare = compare;
+function capitalizarIniciales(str) {
+    return str
+        .toLowerCase() // Primero, opcionalmente convertimos todo a minúsculas para unificar
+        .split(" ") // Dividimos el string en un array de palabras
+        .map(function (word) {
+        return word[0].toUpperCase() + word.substr(1); // Convertimos la primera letra a mayúscula y la unimos con el resto de la palabra
+    })
+        .join(" "); // Unimos nuevamente las palabras en un solo string
+}
+exports.capitalizarIniciales = capitalizarIniciales;

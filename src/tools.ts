@@ -195,3 +195,12 @@ export async function encrypt(data: string) {
 export async function compare(data: string, data2: string) {
   return await bcrypt.compare(data, data2);
 }
+export function capitalizarIniciales(str) {
+  return str
+    .toLowerCase() // Primero, opcionalmente convertimos todo a minúsculas para unificar
+    .split(" ") // Dividimos el string en un array de palabras
+    .map(function (word) {
+      return word[0].toUpperCase() + word.substr(1); // Convertimos la primera letra a mayúscula y la unimos con el resto de la palabra
+    })
+    .join(" "); // Unimos nuevamente las palabras en un solo string
+}
