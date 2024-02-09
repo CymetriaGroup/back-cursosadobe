@@ -377,7 +377,9 @@ export const getCertificado = async (req: Request, res: Response) => {
     logger(`url:::${config.uploadsPath}/${url.url}`);
     let plantillaPdf;
     if (url.url === undefined) {
-      plantillaPdf = await fs.readFile(`${config.uploadsPath}/plantilla.pdf`);
+      plantillaPdf = await fs.readFile(
+        `${config.uploadsPath}/plantilla_new.pdf`
+      );
     } else {
       plantillaPdf = await fs.readFile(`${config.uploadsPath}/${url.url}`);
     }
@@ -396,14 +398,14 @@ export const getCertificado = async (req: Request, res: Response) => {
     drawCenteredText(
       firstPage,
       capitalizarIniciales(nombre),
-      330,
+      345,
       26,
       rgb(81 / 255, 83 / 255, 97 / 255)
     );
     drawCenteredText(
       firstPage,
       url.nombre,
-      260,
+      280,
       30,
       rgb(81 / 255, 83 / 255, 97 / 255)
     );
