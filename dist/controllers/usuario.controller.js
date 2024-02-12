@@ -303,7 +303,7 @@ const getCertificado = async (req, res) => {
         const customFont = await pdfDoc.embedFont(fontBytes);
         const firstPage = pages[0];
         const pageWidth = firstPage.getWidth();
-        const textoFecha = `Emitido en Bogotá D.C. el ${(0, tools_1.formatearFechaEnEspanol)(fecha)}.`;
+        const textoFecha = `Emitido en Bogotá, D.C., el ${(0, tools_1.formatearFechaEnEspanol)(fecha)}.`;
         const color = (0, pdf_lib_1.rgb)(81 / 255, 83 / 255, 97 / 255);
         drawText(firstPage, (0, tools_1.capitalizarIniciales)(nombre), 26, (0, pdf_lib_1.rgb)(0, 0, 0), 345);
         drawText(firstPage, url.nombre, 30, (0, pdf_lib_1.rgb)(0, 0, 0), 280);

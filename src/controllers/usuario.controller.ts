@@ -400,7 +400,7 @@ export const getCertificado = async (req: Request, res: Response) => {
     const customFont = await pdfDoc.embedFont(fontBytes);
     const firstPage = pages[0];
     const pageWidth = firstPage.getWidth();
-    const textoFecha = `Emitido en Bogotá D.C. el ${formatearFechaEnEspanol(
+    const textoFecha = `Emitido en Bogotá, D.C., el ${formatearFechaEnEspanol(
       fecha
     )}.`;
     const color = rgb(81 / 255, 83 / 255, 97 / 255);
