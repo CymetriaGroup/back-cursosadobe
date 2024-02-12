@@ -66,25 +66,25 @@ const formatearFechaEnEspanol = (fechaMySQL) => {
     const fecha = new Date(fechaMySQL);
     // Nombres de los meses en español
     const meses = [
-        "ENERO",
-        "FEBRERO",
-        "MARZO",
-        "ABRIL",
-        "MAYO",
-        "JUNIO",
-        "JULIO",
-        "AGOSTO",
-        "SEPTIEMBRE",
-        "OCTUBRE",
-        "NOVIEMBRE",
-        "DICIEMBRE",
+        "enero",
+        "febrero",
+        "marzo",
+        "abril",
+        "mayo",
+        "junio",
+        "julio",
+        "agosto",
+        "septiembre",
+        "octubre",
+        "noviembre",
+        "diciembre",
     ];
     // Obtiene el día, mes y año de la fecha
     const dia = fecha.getDate();
     const mes = meses[fecha.getMonth()];
     const año = fecha.getFullYear();
     // Formatea la fecha en español
-    const fechaFormateada = `${dia} de ${mes} del ${año}`;
+    const fechaFormateada = `${dia} de ${mes} de ${año}`;
     return fechaFormateada;
 };
 exports.formatearFechaEnEspanol = formatearFechaEnEspanol;

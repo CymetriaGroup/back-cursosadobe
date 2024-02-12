@@ -14,7 +14,7 @@ import {
 import config from "../config";
 import fs from "fs/promises";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
-
+import fontkit from "@pdf-lib/fontkit";
 export const createUsuario = async (req: Request, res: Response) => {
   const { nombre, email, password, telefono, empresa, cargo } = req.body;
 
@@ -377,45 +377,50 @@ export const getCertificado = async (req: Request, res: Response) => {
     logger(`url:::${config.uploadsPath}/${url.url}`);
     let plantillaPdf;
     if (url.url === undefined) {
-      plantillaPdf = await fs.readFile(
-        `${config.uploadsPath}/plantilla_new.pdf`
-      );
+      plantillaPdf = await fs.readFile(`${config.assetsPath}/plantilla.pdf`);
     } else {
       plantillaPdf = await fs.readFile(`${config.uploadsPath}/${url.url}`);
     }
     if (!plantillaPdf) {
       return res
         .status(400)
+
         .json({ message: "No se encontró la plantilla del certificado" });
     }
     const pdfDoc = await PDFDocument.load(plantillaPdf);
     const pages = pdfDoc.getPages();
+
+    pdfDoc.registerFontkit(fontkit);
+    const fontBytes = await fs.readFile(
+      `${config.assetsPath}/Myriad Pro Light SemiExtended.otf`
+    );
+    // const fontBytes = await fs.readFile(
+    //   `${config.assetsPath}/Myriad Pro Light SemiExtended.otf`
+    // );
+    const customFont = await pdfDoc.embedFont(fontBytes);
     const firstPage = pages[0];
     const pageWidth = firstPage.getWidth();
     const textoFecha = `Emitido en Bogotá D.C. el ${formatearFechaEnEspanol(
       fecha
     )}.`;
-    drawCenteredText(
+    const color = rgb(81 / 255, 83 / 255, 97 / 255);
+    drawText(firstPage, capitalizarIniciales(nombre), 26, rgb(0, 0, 0), 345);
+    drawText(firstPage, url.nombre, 30, rgb(0, 0, 0), 280);
+    // drawText(
+    //   firstPage,
+    //   "destacándose por su compromiso y dedicación.",
+    //   14,
+    //   rgb(0, 0, 0),
+    //   230
+    // );
+    drawText(
       firstPage,
-      capitalizarIniciales(nombre),
-      345,
-      26,
-      rgb(81 / 255, 83 / 255, 97 / 255)
+      "durante 60 horas de instrucción.",
+      14,
+      rgb(0, 0, 0),
+      237
     );
-    drawCenteredText(
-      firstPage,
-      url.nombre,
-      280,
-      30,
-      rgb(81 / 255, 83 / 255, 97 / 255)
-    );
-    drawCenteredText(
-      firstPage,
-      textoFecha,
-      80,
-      10,
-      rgb(81 / 255, 83 / 255, 97 / 255)
-    );
+    drawText(firstPage, textoFecha, 10, rgb(0, 0, 0), 60);
     const pdfBytes = await pdfDoc.save();
 
     res.setHeader(
@@ -429,11 +434,11 @@ export const getCertificado = async (req: Request, res: Response) => {
       return text.length * averageCharWidth;
     }
 
-    async function drawCenteredText(page, text, y, size, color) {
+    async function drawText(page, text, size, color, y, x?) {
       try {
-        const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+        const font = customFont;
         const textWidth = font.widthOfTextAtSize(text, size);
-        const x = (pageWidth - textWidth) / 2;
+        x = x || (page.getWidth() - textWidth) / 2;
 
         page.drawText(text, {
           x: x,

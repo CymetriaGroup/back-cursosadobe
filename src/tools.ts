@@ -40,18 +40,18 @@ export const formatearFechaEnEspanol = (fechaMySQL) => {
 
   // Nombres de los meses en español
   const meses = [
-    "ENERO",
-    "FEBRERO",
-    "MARZO",
-    "ABRIL",
-    "MAYO",
-    "JUNIO",
-    "JULIO",
-    "AGOSTO",
-    "SEPTIEMBRE",
-    "OCTUBRE",
-    "NOVIEMBRE",
-    "DICIEMBRE",
+    "enero",
+    "febrero",
+    "marzo",
+    "abril",
+    "mayo",
+    "junio",
+    "julio",
+    "agosto",
+    "septiembre",
+    "octubre",
+    "noviembre",
+    "diciembre",
   ];
 
   // Obtiene el día, mes y año de la fecha
@@ -60,7 +60,7 @@ export const formatearFechaEnEspanol = (fechaMySQL) => {
   const año = fecha.getFullYear();
 
   // Formatea la fecha en español
-  const fechaFormateada = `${dia} de ${mes} del ${año}`;
+  const fechaFormateada = `${dia} de ${mes} de ${año}`;
 
   return fechaFormateada;
 };
